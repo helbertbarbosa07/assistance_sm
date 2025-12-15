@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Assistance SM - Login</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+    }
+    
+    .login-box {
+      width: 100%;
+      max-width: 400px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    .login-header {
+      padding: 30px;
+      background: var(--primary);
+      color: white;
+      text-align: center;
+    }
+    
+    .login-header h1 {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    
+    .login-body {
+      padding: 30px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    
+    .btn-login {
+      width: 100%;
+      padding: 12px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .btn-login:hover {
+      background: var(--primary-dark);
+    }
+    
+    .login-footer {
+      text-align: center;
+      padding: 20px;
+      color: var(--secondary);
+      font-size: 14px;
+    }
+    
+    .error-message {
+      background: #fde8e8;
+      color: #9b1c1c;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-box">
+      <div class="login-header">
+        <h1>
+          <i class="fas fa-robot"></i>
+          Assistance SM
+        </h1>
+        <p>Sistema IA & Gestão de Cursos</p>
+      </div>
+      
+      <div class="login-body">
+        <div class="error-message" id="errorMessage">
+          Usuário ou senha incorretos!
+        </div>
+        
+        <form id="loginForm">
+          <div class="form-group">
+            <label>Usuário</label>
+            <input type="text" id="username" class="form-control" placeholder="Digite seu usuário" required>
+          </div>
+          
+          <div class="form-group">
+            <label>Senha</label>
+            <input type="password" id="password" class="form-control" placeholder="Digite sua senha" required>
+          </div>
+          
+          <button type="submit" class="btn-login">
+            <i class="fas fa-sign-in-alt"></i>
+            Entrar
+          </button>
+        </form>
+      </div>
+      
+      <div class="login-footer">
+        <p>Sistema desenvolvido para gestão de cursos</p>
+        <p style="margin-top: 10px; font-size: 12px;">
+          Usuários padrão: admin/admin123 ou user/user123
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/database.js"></script>
+  <script>
+    // Inicializar banco de dados e verificar login
+    async function initLogin() {
+      try {
+        await initDatabase();
+        console.log('Banco de dados pronto para login');
+      } catch (error) {
+        console.error('Erro ao inicializar banco de dados:', error);
+      }
+    }
+    
+    // Função de login
+    async function handleLogin(event) {
+      event.preventDefault();
+      
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const errorMessage = document.getElementById('errorMessage');
+      
+      if (!username || !password) {
+        errorMessage.textContent = 'Por favor, preencha todos os campos.';
+        errorMessage.style.display = 'block';
+        return;
+      }
+      
+      try {
+        const user = await getUser(username);
+        
+        if (!user || user.senha !== password) {
+          errorMessage.textContent = 'Usuário ou senha incorretos!';
+          errorMessage.style.display = 'block';
+          return;
+        }
+        
+        // Salvar usuário logado
+        const userData = {
+          username: user.username,
+          nome: user.nome,
+          role: user.role
+        };
+        
+        localStorage.setItem('assistance_logged_user', JSON.stringify(userData));
+        
+        // Redirecionar para o sistema
+        window.location.href = 'index.html';
+        
+      } catch (error) {
+        console.error('Erro no login:', error);
+        errorMessage.textContent = 'Erro ao fazer login. Tente novamente.';
+        errorMessage.style.display = 'block';
+      }
+    }
+    
+    // Configurar formulário
+    document.getElementById('loginForm').addEventListener('submit', handleLogin);
+    
+    // Inicializar quando o DOM estiver pronto
+    document.addEventListener('DOMContentLoaded', initLogin);
+  </script>
+</body>
+</html>
