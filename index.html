@@ -1,0 +1,3253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Assistance SM - Sistema IA & Gestão</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Design System Moderno */
+    :root {
+      --primary: #0b5ed7;
+      --primary-dark: #0a58ca;
+      --primary-light: #eef6ff;
+      --secondary: #6c757d;
+      --success: #198754;
+      --danger: #dc3545;
+      --warning: #ffc107;
+      --info: #17a2b8;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --white: #ffffff;
+      --purple: #8b5cf6;
+      --teal: #20c997;
+      
+      --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+      --shadow-xl: 0 12px 36px rgba(0,0,0,0.15);
+      
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #f6f8fb 0%, #f0f4f9 100%);
+      color: var(--dark);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* Layout Principal */
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      background: linear-gradient(135deg, var(--dark) 0%, #343a40 100%);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-lg);
+      z-index: 1000;
+    }
+
+    .sidebar-header {
+      padding: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .logo i {
+      font-size: 28px;
+      color: var(--primary-light);
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .logo-subtext {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 24px;
+      background: rgba(255,255,255,0.05);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    .user-details h4 {
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .user-details p {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+    .nav-menu {
+      flex: 1;
+      padding: 20px 0;
+    }
+
+    .nav-item {
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      border-left: 3px solid transparent;
+    }
+
+    .nav-item:hover {
+      background: rgba(255,255,255,0.05);
+    }
+
+    .nav-item.active {
+      background: rgba(11, 94, 215, 0.1);
+      border-left-color: var(--primary);
+    }
+
+    .nav-item i {
+      width: 20px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      padding: 20px 24px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      font-size: 12px;
+      opacity: 0.7;
+    }
+
+    /* Conteúdo Principal */
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .top-bar {
+      background: white;
+      padding: 16px 24px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .welcome-message {
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .welcome-message strong {
+      color: var(--primary);
+    }
+
+    .top-bar-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--success) 0%, #157347 100%);
+      color: white;
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, var(--danger) 0%, #b02a37 100%);
+      color: white;
+    }
+
+    .btn-warning {
+      background: linear-gradient(135deg, var(--warning) 0%, #e0a800 100%);
+      color: var(--dark);
+    }
+
+    .btn-info {
+      background: linear-gradient(135deg, var(--info) 0%, #138496 100%);
+      color: white;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* Páginas */
+    .page {
+      padding: 24px;
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Alertas */
+    .alert {
+      padding: 16px 20px;
+      border-radius: var(--radius-md);
+      margin-bottom: 20px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .alert-danger {
+      background: linear-gradient(135deg, #fee 0%, #fdd 100%);
+      color: var(--danger);
+      border: 1px solid #fcc;
+    }
+
+    .alert-success {
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+      color: var(--success);
+      border: 1px solid #c3e6cb;
+    }
+
+    .alert-info {
+      background: linear-gradient(135deg, var(--primary-light) 0%, #dbeafe 100%);
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+
+    /* Dashboard e Seções */
+    .admin-section {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: 30px;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 24px;
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--dark);
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--light);
+    }
+
+    .section-title i {
+      color: var(--primary);
+      background: var(--primary-light);
+      padding: 10px;
+      border-radius: var(--radius-md);
+    }
+
+    .admin-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, white 0%, #f8fafc 100%);
+      padding: 24px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      border: 1px solid rgba(0,0,0,0.05);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .stat-icon {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 24px;
+    }
+
+    .stat-info h3 {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 4px;
+      background: linear-gradient(135deg, var(--dark) 0%, #495057 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .stat-info p {
+      color: var(--secondary);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    /* Chat IA */
+    .chat-container {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 24px;
+      height: calc(100vh - 200px);
+    }
+
+    @media (max-width: 1024px) {
+      .chat-container {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+      
+      .sidebar-cursos {
+        display: none;
+      }
+    }
+
+    .sidebar-cursos {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .sidebar-cursos-header {
+      padding: 24px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+    }
+
+    .sidebar-cursos-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .sidebar-cursos-title i {
+      font-size: 24px;
+    }
+
+    .cursos-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .curso-item {
+      padding: 16px;
+      margin-bottom: 12px;
+      background: var(--light);
+      border-radius: var(--radius-md);
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .curso-item:hover {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .curso-item.active {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .curso-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+    }
+
+    .curso-info h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--dark);
+    }
+
+    .curso-info p {
+      font-size: 12px;
+      color: var(--secondary);
+    }
+
+    .chat-ia-container {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .chat-header {
+      padding: 20px 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chat-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chat-title i {
+      font-size: 24px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    .chat-title h2 {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .current-course {
+      background: rgba(255,255,255,0.2);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .messages-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      background: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .message {
+      max-width: 85%;
+      padding: 18px 22px;
+      border-radius: var(--radius-lg);
+      position: relative;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .message.assistant {
+      align-self: flex-start;
+      background: white;
+      color: var(--dark);
+      border: 1px solid #e5e7eb;
+      border-bottom-left-radius: 4px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .message-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .message.user .message-header {
+      color: rgba(255,255,255,0.9);
+    }
+
+    .message.assistant .message-header {
+      color: var(--purple);
+    }
+
+    .message-content {
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .message.assistant .message-content ul {
+      margin-left: 20px;
+      margin-top: 8px;
+    }
+
+    .message.assistant .message-content li {
+      margin-bottom: 6px;
+    }
+
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 16px 20px;
+      background: white;
+      border-radius: var(--radius-lg);
+      align-self: flex-start;
+      border: 1px solid #e5e7eb;
+    }
+
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--purple);
+      border-radius: 50%;
+      animation: typing 1.4s infinite;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-10px); }
+    }
+
+    .input-container {
+      padding: 20px 24px;
+      border-top: 1px solid #e5e7eb;
+      background: white;
+    }
+
+    .input-wrapper {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    #userInput {
+      flex: 1;
+      padding: 16px 20px;
+      border: 2px solid #e5e7eb;
+      border-radius: var(--radius-md);
+      font-size: 15px;
+      font-family: inherit;
+      transition: all 0.3s;
+      resize: none;
+      max-height: 120px;
+    }
+
+    #userInput:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(11, 94, 215, 0.1);
+    }
+
+    .send-button {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      border: none;
+      border-radius: var(--radius-md);
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+    }
+
+    .send-button:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .send-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .quick-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .quick-action {
+      padding: 10px 16px;
+      background: var(--light);
+      border: 1px solid #e5e7eb;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .quick-action:hover {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    /* ============================= */
+    /* SISTEMA DE FEEDBACK MELHORADO */
+    /* ============================= */
+    
+    .feedback-section {
+      margin-top: 30px;
+      padding-top: 24px;
+      border-top: 1px solid var(--light);
+    }
+
+    .feedback-form-container {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+      padding: 32px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      margin-bottom: 30px;
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .feedback-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .feedback-icon {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, var(--teal) 0%, #0ca678 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 22px;
+    }
+
+    .feedback-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--dark);
+    }
+
+    .feedback-subtitle {
+      color: var(--secondary);
+      font-size: 14px;
+    }
+
+    .rating-container {
+      background: var(--light);
+      padding: 20px;
+      border-radius: var(--radius-md);
+      margin: 20px 0;
+    }
+
+    .rating-label {
+      display: block;
+      margin-bottom: 12px;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .rating-stars {
+      display: flex;
+      gap: 6px;
+      margin: 10px 0 20px 0;
+    }
+
+    .star {
+      font-size: 28px;
+      color: #e4e5e9;
+      cursor: pointer;
+      transition: all 0.2s;
+      padding: 5px;
+    }
+
+    .star:hover {
+      transform: scale(1.2);
+    }
+
+    .star.active {
+      color: #ffc107;
+      text-shadow: 0 2px 8px rgba(255, 193, 7, 0.4);
+    }
+
+    .rating-text {
+      font-size: 14px;
+      color: var(--secondary);
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    .feedback-input-group {
+      margin: 24px 0;
+    }
+
+    .feedback-label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 600;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #feedbackText {
+      width: 100%;
+      min-height: 120px;
+      padding: 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: var(--radius-md);
+      font-size: 15px;
+      font-family: inherit;
+      transition: all 0.3s;
+      resize: vertical;
+    }
+
+    #feedbackText:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(11, 94, 215, 0.1);
+    }
+
+    .feedback-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .stat-item {
+      background: white;
+      padding: 20px;
+      border-radius: var(--radius-md);
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .feedback-list-container {
+      background: white;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .feedback-list-header {
+      padding: 24px;
+      background: var(--light);
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .feedback-list-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--dark);
+    }
+
+    .feedback-sort {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .feedback-list {
+      max-height: 500px;
+      overflow-y: auto;
+      padding: 0;
+    }
+
+    .feedback-item {
+      padding: 24px;
+      border-bottom: 1px solid #e5e7eb;
+      transition: background 0.3s;
+    }
+
+    .feedback-item:last-child {
+      border-bottom: none;
+    }
+
+    .feedback-item:hover {
+      background: var(--primary-light);
+    }
+
+    .feedback-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .feedback-user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .feedback-user-avatar {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .feedback-user-details h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 2px;
+    }
+
+    .feedback-rating-stars {
+      color: #ffc107;
+      font-size: 16px;
+      letter-spacing: 1px;
+    }
+
+    .feedback-date {
+      font-size: 12px;
+      color: var(--secondary);
+    }
+
+    .feedback-content {
+      color: var(--dark);
+      line-height: 1.6;
+      padding: 12px 0;
+      font-size: 14px;
+    }
+
+    .empty-feedback {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--secondary);
+    }
+
+    .empty-feedback i {
+      font-size: 48px;
+      margin-bottom: 16px;
+      color: #e4e5e9;
+    }
+
+    /* ============================= */
+    /* GESTÃO DE CURSOS MELHORADO */
+    /* ============================= */
+    
+    .courses-management-container {
+      background: white;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .courses-header {
+      padding: 30px;
+      background: linear-gradient(135deg, var(--light) 0%, #e9ecef 100%);
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    .courses-title-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .courses-icon {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 26px;
+    }
+
+    .courses-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--dark);
+    }
+
+    .courses-subtitle {
+      color: var(--secondary);
+      font-size: 15px;
+    }
+
+    .course-form-container {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+      padding: 32px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      margin-bottom: 30px;
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .form-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--light);
+    }
+
+    .form-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--teal) 0%, #0ca678 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    #courseFormTitle {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--dark);
+      margin: 0;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 600;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .required::after {
+      content: " *";
+      color: var(--danger);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: var(--radius-md);
+      font-size: 15px;
+      transition: all 0.3s;
+      background: white;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(11, 94, 215, 0.1);
+    }
+
+    .form-control[readonly] {
+      background: var(--light);
+      cursor: not-allowed;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 16px;
+      margin-top: 30px;
+      padding-top: 24px;
+      border-top: 1px solid var(--light);
+    }
+
+    .btn-lg {
+      padding: 14px 28px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .btn-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .courses-table-container {
+      overflow-x: auto;
+      padding: 0 30px 30px 30px;
+    }
+
+    .courses-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-top: 20px;
+    }
+
+    .courses-table thead {
+      background: linear-gradient(135deg, var(--light) 0%, #e9ecef 100%);
+    }
+
+    .courses-table th {
+      text-align: left;
+      padding: 18px 16px;
+      font-weight: 700;
+      color: var(--dark);
+      border-bottom: 2px solid #dee2e6;
+      white-space: nowrap;
+    }
+
+    .courses-table tbody tr {
+      transition: all 0.3s;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .courses-table tbody tr:hover {
+      background: var(--primary-light);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .courses-table td {
+      padding: 18px 16px;
+      border-bottom: 1px solid #e5e7eb;
+      vertical-align: middle;
+    }
+
+    .course-name-cell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .course-icon-small {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 16px;
+    }
+
+    .course-details {
+      flex: 1;
+    }
+
+    .course-name {
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 4px;
+    }
+
+    .course-meta {
+      font-size: 12px;
+      color: var(--secondary);
+    }
+
+    .badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-success {
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+      color: var(--success);
+    }
+
+    .badge-warning {
+      background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+      color: #e0a800;
+    }
+
+    .course-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+    }
+
+    .btn-sm i {
+      font-size: 12px;
+    }
+
+    .no-courses {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--secondary);
+    }
+
+    .no-courses i {
+      font-size: 48px;
+      margin-bottom: 16px;
+      color: #e4e5e9;
+    }
+
+    /* ============================= */
+    /* Sobre e LGPD */
+    /* ============================= */
+    .about-section {
+      padding: 30px;
+      background: white;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      line-height: 1.8;
+    }
+
+    .about-section h3 {
+      color: var(--primary);
+      margin-bottom: 15px;
+    }
+
+    .about-section ul {
+      margin-left: 20px;
+      margin-bottom: 15px;
+    }
+
+    /* ============================= */
+    /* Responsivo */
+    /* ============================= */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 70px;
+      }
+      
+      .sidebar .logo-text,
+      .sidebar .logo-subtext,
+      .sidebar .user-details,
+      .sidebar .nav-item span,
+      .sidebar-footer {
+        display: none;
+      }
+      
+      .nav-item {
+        justify-content: center;
+        padding: 16px;
+      }
+      
+      .user-info {
+        justify-content: center;
+      }
+      
+      .admin-stats {
+        grid-template-columns: 1fr;
+      }
+      
+      .chat-header {
+        padding: 16px;
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+      }
+      
+      .message {
+        max-width: 90%;
+      }
+      
+      .input-wrapper {
+        flex-direction: column;
+      }
+      
+      .send-button {
+        width: 100%;
+        height: 45px;
+      }
+      
+      .top-bar {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+      }
+      
+      .top-bar-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+      
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .course-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .btn-sm {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .feedback-header,
+      .courses-title-section {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .form-actions {
+        flex-direction: column;
+      }
+      
+      .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .courses-table-container {
+        padding: 0 16px 16px 16px;
+      }
+      
+      .courses-table th,
+      .courses-table td {
+        padding: 12px 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sistema Principal -->
+  <div id="app" class="app-container" style="display: none;">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <i class="fas fa-robot"></i>
+          <div>
+            <div class="logo-text">Assistance SM</div>
+            <div class="logo-subtext">Sistema IA</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">A</div>
+        <div class="user-details">
+          <h4 id="userName">Administrador</h4>
+          <p id="userRole">Carregando...</p>
+        </div>
+      </div>
+      
+      <div class="nav-menu">
+        <div class="nav-item active" data-page="dashboard">
+          <i class="fas fa-home"></i>
+          <span>Dashboard</span>
+        </div>
+        <div class="nav-item" data-page="ia">
+          <i class="fas fa-robot"></i>
+          <span>Assistente IA</span>
+        </div>
+        <div class="nav-item" data-page="feedback">
+          <i class="fas fa-comment-dots"></i>
+          <span>Feedback</span>
+        </div>
+        
+        <!-- MENU ADMIN - VISÍVEL APENAS PARA ADMIN -->
+        <div class="nav-item" data-page="courses" id="coursesNavItem" style="display: none;">
+          <i class="fas fa-book"></i>
+          <span>Gestão de Cursos</span>
+        </div>
+        
+        <div class="nav-item" data-page="about">
+          <i class="fas fa-info-circle"></i>
+          <span>Sobre</span>
+        </div>
+        
+        <div class="nav-item" data-page="lgpd">
+          <i class="fas fa-shield-alt"></i>
+          <span>LGPD</span>
+        </div>
+      </div>
+      
+      <div class="sidebar-footer">
+        <p>© 2024 Assistance SM</p>
+        <p>Sistema IA v2.0</p>
+      </div>
+    </div>
+    
+    <!-- Conteúdo Principal -->
+    <div class="main-content">
+      <div class="top-bar">
+        <div class="welcome-message" id="welcomeMessage">
+          Bem-vindo, <strong id="userFullName">Usuário</strong>!
+        </div>
+        <div class="top-bar-actions">
+          <button class="btn btn-warning" onclick="clearCache()">
+            <i class="fas fa-trash"></i> Limpar Cache
+          </button>
+          <span id="apiStatusBadge" style="font-weight:600; color:var(--danger); margin-right:8px;">API: Offline</span>
+          <button class="btn btn-danger" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> Sair
+          </button>
+        </div>
+      </div>
+      
+      <!-- Páginas -->
+      <div id="pages">
+        <!-- Dashboard -->
+        <div id="dashboardPage" class="page active">
+          <div class="container">
+            <div class="admin-section">
+              <h2 class="section-title">
+                <i class="fas fa-tachometer-alt"></i>
+                Dashboard do Sistema
+              </h2>
+              <p>Bem-vindo ao sistema Assistance SM com IA avançada.</p>
+            </div>
+            
+            <div class="admin-stats" id="dashboardStats">
+              <!-- Stats serão preenchidos via JavaScript -->
+            </div>
+            
+            <div class="admin-section">
+              <h2 class="section-title">
+                <i class="fas fa-chart-line"></i>
+                Estatísticas Rápidas
+              </h2>
+              <p>Sistema com <span id="totalCursosCount">0</span> cursos cadastrados e <span id="totalFeedbacksCount">0</span> avaliações recebidas.</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Assistente IA -->
+        <div id="iaPage" class="page">
+          <div class="container">
+            <div class="chat-container">
+              <!-- Sidebar de Cursos -->
+              <div class="sidebar-cursos">
+                <div class="sidebar-cursos-header">
+                  <div class="sidebar-cursos-title">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h3>Cursos Disponíveis</h3>
+                  </div>
+                  <p>Selecione um curso para conversar</p>
+                </div>
+                
+                <div class="cursos-container" id="cursosContainer">
+                  <!-- Cursos serão carregados via JavaScript -->
+                </div>
+              </div>
+
+              <!-- Chat IA em Tempo Real -->
+              <div class="chat-ia-container">
+                <div class="chat-header">
+                  <div class="chat-title">
+                    <i class="fas fa-robot"></i>
+                    <h2>Assistente de Vendas IA</h2>
+                  </div>
+                  
+                  <div class="current-course" id="currentCourse">
+                    <i class="fas fa-book"></i>
+                    <span>Selecione um curso</span>
+                  </div>
+                </div>
+                
+                <div class="messages-container" id="messagesContainer">
+                  <div class="message assistant">
+                    <div class="message-header">
+                      <i class="fas fa-robot"></i>
+                      Assistente IA
+                    </div>
+                    <div class="message-content">
+                      Olá! Sou seu assistente de vendas para cursos da Assistance SM. 👋
+
+                      **Como posso ajudar você hoje?**
+
+                      • Ajudo a criar scripts de vendas personalizados
+                      • Respondo objeções de clientes
+                      • Sugiro abordagens para diferentes perfis
+                      • Crio estratégias de fechamento
+                      • Elaboro respostas para WhatsApp/Telefone
+
+                      Selecione um curso ao lado para começarmos!
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="input-container">
+                  <div class="input-wrapper">
+                    <textarea 
+                      id="userInput" 
+                      placeholder="Digite sua mensagem para a IA... (Ex: 'Crie um script de vendas para o curso selecionado')"
+                      rows="1"
+                      onkeydown="handleKeyPress(event)"
+                    ></textarea>
+                    <button class="send-button" id="sendButton" onclick="sendMessage()">
+                      <i class="fas fa-paper-plane"></i>
+                    </button>
+                  </div>
+                  
+                  <div class="quick-actions" id="quickActions">
+                    <!-- Ações rápidas serão inseridas aqui -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Feedback - NOVO DESIGN -->
+        <div id="feedbackPage" class="page">
+          <div class="container">
+            <!-- Formulário de Feedback -->
+            <div class="feedback-form-container">
+              <div class="feedback-header">
+                <div class="feedback-icon">
+                  <i class="fas fa-comment-dots"></i>
+                </div>
+                <div>
+                  <h3 class="feedback-title">Enviar Feedback</h3>
+                  <p class="feedback-subtitle">Sua opinião é importante para melhorarmos o sistema</p>
+                </div>
+              </div>
+              
+              <div class="rating-container">
+                <label class="rating-label">
+                  <i class="fas fa-star"></i> Avalie sua experiência
+                </label>
+                <div class="rating-stars" id="ratingStars">
+                  <span class="star" data-rating="1" title="Péssimo">☆</span>
+                  <span class="star" data-rating="2" title="Ruim">☆</span>
+                  <span class="star" data-rating="3" title="Regular">☆</span>
+                  <span class="star" data-rating="4" title="Bom">☆</span>
+                  <span class="star" data-rating="5" title="Excelente">☆</span>
+                </div>
+                <div class="rating-text" id="ratingText">Clique nas estrelas para avaliar</div>
+              </div>
+              
+              <div class="feedback-input-group">
+                <label class="feedback-label">
+                  <i class="fas fa-edit"></i> Seu Comentário
+                </label>
+                <textarea 
+                  id="feedbackText" 
+                  class="form-control" 
+                  rows="4" 
+                  placeholder="Compartilhe sua experiência, sugestões ou problemas encontrados..."
+                ></textarea>
+              </div>
+              
+              <button class="btn btn-primary btn-lg" onclick="submitFeedback()">
+                <i class="fas fa-paper-plane"></i> Enviar Feedback
+              </button>
+            </div>
+            
+            <!-- Estatísticas de Feedback -->
+            <div class="admin-section">
+              <h2 class="section-title">
+                <i class="fas fa-chart-bar"></i>
+                Estatísticas de Feedback
+              </h2>
+              <div class="feedback-stats" id="feedbackStats">
+                <!-- Estatísticas serão carregadas via JavaScript -->
+              </div>
+            </div>
+            
+            <!-- Lista de Feedbacks -->
+            <div class="feedback-list-container">
+              <div class="feedback-list-header">
+                <h3 class="feedback-list-title">
+                  <i class="fas fa-history"></i> Feedbacks Recentes
+                </h3>
+                <div class="feedback-sort">
+                  <select id="feedbackSort" class="form-control" style="width: auto;" onchange="loadFeedbacks()">
+                    <option value="newest">Mais recentes</option>
+                    <option value="oldest">Mais antigos</option>
+                    <option value="highest">Melhores avaliações</option>
+                    <option value="lowest">Piores avaliações</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="feedback-list" id="feedbackList">
+                <!-- Feedbacks serão carregados aqui -->
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Gestão de Cursos (APENAS ADMIN) - NOVO DESIGN -->
+        <div id="coursesPage" class="page">
+          <div class="container">
+            <!-- Cabeçalho -->
+            <div class="courses-management-container">
+              <div class="courses-header">
+                <div class="courses-title-section">
+                  <div class="courses-icon">
+                    <i class="fas fa-book"></i>
+                  </div>
+                  <div>
+                    <h1 class="courses-title">Gestão de Cursos</h1>
+                    <p class="courses-subtitle">Adicione, edite ou remova cursos do sistema</p>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Formulário de Curso -->
+              <div class="course-form-container">
+                <div class="form-header">
+                  <div class="form-icon">
+                    <i class="fas fa-plus"></i>
+                  </div>
+                  <h3 id="courseFormTitle">Adicionar Novo Curso</h3>
+                </div>
+                
+                <form id="courseForm">
+                  <input type="hidden" id="courseId">
+                  
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <label class="form-label required">
+                        <i class="fas fa-book"></i> Nome do Curso
+                      </label>
+                      <input type="text" id="courseName" class="form-control" required placeholder="Ex: Direito">
+                    </div>
+                    
+                    <div class="form-group">
+                      <label class="form-label required">
+                        <i class="fas fa-clock"></i> Duração
+                      </label>
+                      <input type="text" id="courseDuration" class="form-control" required placeholder="Ex: 5 anos (bacharelado)">
+                    </div>
+                    
+                    <div class="form-group">
+                      <label class="form-label">
+                        <i class="fas fa-icons"></i> Ícone (Font Awesome)
+                      </label>
+                      <input type="text" id="courseIcon" class="form-control" placeholder="Ex: fas fa-graduation-cap">
+                      <small style="color: var(--secondary); font-size: 12px; margin-top: 5px; display: block;">
+                        Use classes do Font Awesome (ex: fas fa-book, fas fa-user-md)
+                      </small>
+                    </div>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label class="form-label required">
+                      <i class="fas fa-align-left"></i> Descrição Completa
+                    </label>
+                    <textarea id="courseDescription" class="form-control" rows="4" required placeholder="Descreva o curso..."></textarea>
+                  </div>
+                  
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <label class="form-label">
+                        <i class="fas fa-star"></i> Diferenciais
+                      </label>
+                      <textarea id="courseDifferentials" class="form-control" rows="3" placeholder="Cada diferencial em uma linha"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label class="form-label">
+                        <i class="fas fa-briefcase"></i> Mercado de Trabalho
+                      </label>
+                      <textarea id="courseMarket" class="form-control" rows="3" placeholder="Ex: Advogado Júnior: R$ 2.500 - R$ 4.600"></textarea>
+                    </div>
+                  </div>
+                  
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <label class="form-label">
+                        <i class="fas fa-graduation-cap"></i> Especializações
+                      </label>
+                      <textarea id="coursePostgrad" class="form-control" rows="3" placeholder="Ex: Direito de Família"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label class="form-label">
+                        <i class="fas fa-calendar-alt"></i> Eventos e Visitas
+                      </label>
+                      <textarea id="courseEvents" class="form-control" rows="3" placeholder="Ex: Semana Acadêmica"></textarea>
+                    </div>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label class="form-label">
+                      <i class="fas fa-briefcase"></i> Estágios e Práticas
+                    </label>
+                    <textarea id="courseInternships" class="form-control" rows="3" placeholder="Descreva as oportunidades de estágio..."></textarea>
+                  </div>
+                  
+                  <div class="form-actions">
+                    <button type="button" class="btn btn-primary btn-lg" onclick="saveCourse()" id="saveCourseBtn">
+                      <i class="fas fa-save"></i> Salvar Curso
+                    </button>
+                    <button type="button" class="btn btn-danger btn-lg" onclick="resetCourseForm()" id="cancelCourseBtn" style="display: none;">
+                      <i class="fas fa-times"></i> Cancelar Edição
+                    </button>
+                  </div>
+                </form>
+              </div>
+              
+              <!-- Lista de Cursos -->
+              <div class="courses-table-container">
+                <h3 style="font-size: 18px; font-weight: 700; color: var(--dark); margin: 30px 0 20px 0; display: flex; align-items: center; gap: 10px;">
+                  <i class="fas fa-list"></i> Cursos Cadastrados
+                </h3>
+                
+                <div id="coursesList">
+                  <!-- Cursos serão carregados aqui -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Sobre -->
+        <div id="aboutPage" class="page">
+          <div class="container">
+            <div class="about-section">
+              <h2><i class="fas fa-info-circle"></i> Sobre o Sistema</h2>
+              <p><strong>Assistance SM</strong> é um sistema inteligente desenvolvido para gestão educacional com integração de Inteligência Artificial.</p>
+              
+              <h3 style="margin-top: 20px;">Funcionalidades Principais:</h3>
+              <ul>
+                <li><strong>Dashboard Intuitivo:</strong> Visualização de estatísticas e métricas do sistema</li>
+                <li><strong>Assistente IA:</strong> Chatbot inteligente para suporte e vendas de cursos</li>
+                <li><strong>Sistema de Feedback:</strong> Avaliação e coleta de opiniões dos usuários</li>
+                <li><strong>Gestão de Cursos:</strong> CRUD completo de cursos e especializações</li>
+                <li><strong>Administração:</strong> Controle de usuários e configurações do sistema</li>
+              </ul>
+              
+              <h3 style="margin-top: 20px;">Tecnologias Utilizadas:</h3>
+              <ul>
+                <li>HTML5, CSS3 e JavaScript Vanilla</li>
+                <li>IndexedDB para armazenamento local</li>
+                <li>Font Awesome para ícones</li>
+                <li>Design System moderno e responsivo</li>
+              </ul>
+              
+              <h3 style="margin-top: 20px;">Versão:</h3>
+              <p>Sistema IA v2.0.0</p>
+              
+              <div style="margin-top: 30px; padding: 15px; background: var(--light); border-radius: var(--radius-md);">
+                <p><strong>Desenvolvido para:</strong> Empresas e instituições educacionais</p>
+                <p><strong>Objetivo:</strong> Otimizar processos de gestão e atendimento com IA</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- LGPD -->
+        <div id="lgpdPage" class="page">
+          <div class="container">
+            <div class="about-section">
+              <h2><i class="fas fa-shield-alt"></i> Política de Proteção de Dados - LGPD</h2>
+              
+              <h3 style="margin-top: 20px;">1. Coleta de Dados</h3>
+              <p>O sistema <strong>Assistance SM</strong> coleta apenas os dados necessários para o funcionamento adequado, incluindo:</p>
+              <ul>
+                <li>Informações de cadastro (nome, e-mail, perfil de acesso)</li>
+                <li>Dados de uso do sistema (logs, feedbacks, conversas)</li>
+                <li>Informações de cursos e conteúdo educacional</li>
+              </ul>
+              
+              <h3 style="margin-top: 20px;">2. Finalidade do Tratamento</h3>
+              <p>Os dados coletados são utilizados para:</p>
+              <ul>
+                <li>Autenticação e controle de acesso ao sistema</li>
+                <li>Melhoria contínua das funcionalidades</li>
+                <li>Geração de relatórios e estatísticas</li>
+                <li>Personalização da experiência do usuário</li>
+              </ul>
+              
+              <h3 style="margin-top: 20px;">3. Armazenamento e Segurança</h3>
+              <p>Os dados são armazenados localmente no dispositivo do usuário através do IndexedDB, com medidas de segurança implementadas para proteger as informações contra acessos não autorizados.</p>
+              
+              <h3 style="margin-top: 20px;">4. Direitos do Titular</h3>
+              <p>De acordo com a Lei Geral de Proteção de Dados (Lei 13.709/2018), você tem direito a:</p>
+              <ul>
+                <li>Confirmar a existência de tratamento de dados</li>
+                <li>Acessar seus dados pessoais</li>
+                <li>Corrigir dados incompletos, inexatos ou desatualizados</li>
+                <li>Solicitar a eliminação de dados tratados com consentimento</li>
+                <li>Revogar o consentimento a qualquer momento</li>
+              </ul>
+              
+              <h3 style="margin-top: 20px;">5. Contato do Encarregado</h3>
+              <p>Para exercer seus direitos ou esclarecer dúvidas sobre proteção de dados:</p>
+              <ul>
+                <li><strong>E-mail:</strong> <span id="lgpdEmail">dpo@assistance-sm.com</span></li>
+                <li><strong>Telefone:</strong> <span id="lgpdPhone">(96) 99999-9999</span></li>
+              </ul>
+              
+              <div style="margin-top: 30px; padding: 15px; background: var(--light); border-radius: var(--radius-md); border-left: 4px solid var(--primary);">
+                <p><strong>Última atualização:</strong> Janeiro de 2024</p>
+                <p><strong>Versão da Política:</strong> 1.0</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==============================
+    // INTEGRAÇÃO COM SUAS PÁGINAS
+    // ==============================
+    
+    // Esta função verifica se o usuário está logado
+    // Integre com seu sistema de login existente
+    function checkAuth() {
+      // Verifique se há um usuário logado na sua aplicação
+      // Adapte esta função para usar sua lógica de autenticação
+      const loggedUser = localStorage.getItem('assistance_logged_user');
+      
+      if (loggedUser) {
+        try { return JSON.parse(loggedUser); } catch(e) { /* invalid json */ }
+      }
+      
+      // Compatibilidade com versões antigas (login.html usava outras chaves)
+      const legacyUser = localStorage.getItem('currentUser');
+      const legacyRole = localStorage.getItem('userRole');
+      if (legacyUser) {
+        return { username: legacyUser, nome: legacyUser, role: legacyRole || 'user' };
+      }
+      
+      return null;
+    }
+    
+    // ==============================
+    // BANCO DE DADOS SQLite (IndexedDB)
+    // ==============================
+    
+    let db;
+    let currentUser = null;
+    let currentChatCourse = null;
+    let currentCourseId = null;
+
+    // Inicializar banco de dados
+    function initDatabase() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open('AssistanceSistemaDB', 5);
+        
+        request.onerror = (event) => {
+          console.error('Erro ao abrir banco de dados:', event.target.error);
+          reject(event.target.error);
+        };
+        
+        request.onsuccess = (event) => {
+          db = event.target.result;
+          console.log('Banco de dados inicializado com sucesso');
+          resolve(db);
+        };
+        
+        request.onupgradeneeded = (event) => {
+          const db = event.target.result;
+          
+          // Tabela de usuários
+          if (!db.objectStoreNames.contains('users')) {
+            const usersStore = db.createObjectStore('users', { keyPath: 'username' });
+            usersStore.createIndex('nome', 'nome', { unique: false });
+            usersStore.createIndex('role', 'role', { unique: false });
+            usersStore.createIndex('status', 'status', { unique: false });
+          }
+          
+          // Tabela de cursos
+          if (!db.objectStoreNames.contains('courses')) {
+            const coursesStore = db.createObjectStore('courses', { keyPath: 'id' });
+            coursesStore.createIndex('name', 'name', { unique: true });
+          }
+          
+          // Tabela de feedbacks
+          if (!db.objectStoreNames.contains('feedbacks')) {
+            const feedbacksStore = db.createObjectStore('feedbacks', { keyPath: 'id', autoIncrement: true });
+            feedbacksStore.createIndex('userId', 'userId', { unique: false });
+            feedbacksStore.createIndex('rating', 'rating', { unique: false });
+            feedbacksStore.createIndex('date', 'date', { unique: false });
+          }
+          
+          // Tabela de conversas IA
+          if (!db.objectStoreNames.contains('chats')) {
+            const chatsStore = db.createObjectStore('chats', { keyPath: 'id', autoIncrement: true });
+            chatsStore.createIndex('userId', 'userId', { unique: false });
+            chatsStore.createIndex('courseId', 'courseId', { unique: false });
+            chatsStore.createIndex('date', 'date', { unique: false });
+          }
+        };
+      });
+    }
+
+    // ==============================
+    // FUNÇÕES DO BANCO DE DADOS
+    // ==============================
+
+    // Usuários
+    async function getUser(username) {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['users'], 'readonly');
+        const store = transaction.objectStore('users');
+        const request = store.get(username);
+        
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function getAllUsers() {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['users'], 'readonly');
+        const store = transaction.objectStore('users');
+        const request = store.getAll();
+        
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    // Cursos
+    async function addCourse(course) {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['courses'], 'readwrite');
+        const store = transaction.objectStore('courses');
+        const request = store.add(course);
+        
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function getCourse(id) {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['courses'], 'readonly');
+        const store = transaction.objectStore('courses');
+        const request = store.get(id);
+        
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function getAllCourses() {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['courses'], 'readonly');
+        const store = transaction.objectStore('courses');
+        const request = store.getAll();
+        
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function updateCourse(id, updates) {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['courses'], 'readwrite');
+        const store = transaction.objectStore('courses');
+        const request = store.get(id);
+        
+        request.onsuccess = () => {
+          const course = request.result;
+          if (course) {
+            Object.assign(course, updates);
+            const updateRequest = store.put(course);
+            updateRequest.onsuccess = () => resolve(course);
+            updateRequest.onerror = () => reject(updateRequest.error);
+          } else {
+            reject(new Error('Curso não encontrado'));
+          }
+        };
+        
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function deleteCourse(id) {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['courses'], 'readwrite');
+        const store = transaction.objectStore('courses');
+        const request = store.delete(id);
+        
+        request.onsuccess = () => resolve(true);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    // Feedbacks
+    async function addFeedback(feedback) {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['feedbacks'], 'readwrite');
+        const store = transaction.objectStore('feedbacks');
+        const request = store.add(feedback);
+        
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function getAllFeedbacks() {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['feedbacks'], 'readonly');
+        const store = transaction.objectStore('feedbacks');
+        const request = store.getAll();
+        
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    // ==============================
+    // FUNÇÕES DE AUTENTICAÇÃO
+    // ==============================
+
+    function logout() {
+      // Limpa o armazenamento local
+      localStorage.removeItem('assistance_logged_user');
+      sessionStorage.clear();
+      
+      // Redireciona para sua página de login
+      window.location.href = 'login.html';
+    }
+
+    function updateUserInterface() {
+      if (!currentUser) return;
+      
+      // Atualizar nome do usuário corretamente
+      document.getElementById('userName').textContent = currentUser.nome;
+      document.getElementById('userFullName').textContent = currentUser.nome;
+      document.getElementById('userRole').textContent = 
+        currentUser.role === 'admin' ? 'Administrador' : 'Usuário';
+      
+      // Inicial das letras do nome para avatar
+      const initials = currentUser.nome.split(' ').map(n => n[0]).join('').toUpperCase();
+      document.getElementById('userAvatar').textContent = initials.substring(0, 2);
+      
+      // Mensagem personalizada na top bar
+      const hour = new Date().getHours();
+      let greeting = '';
+      if (hour < 12) greeting = 'Bom dia';
+      else if (hour < 18) greeting = 'Boa tarde';
+      else greeting = 'Boa noite';
+      
+      document.getElementById('welcomeMessage').innerHTML = 
+        `${greeting}, <strong>${currentUser.nome}</strong>!`;
+        
+      // Mostrar/ocultar itens de menu (APENAS ADMIN VÊ GESTÃO DE CURSOS)
+      const isAdmin = currentUser.role === 'admin';
+      document.getElementById('coursesNavItem').style.display = isAdmin ? 'flex' : 'none';
+    }
+
+    // ==============================
+    // CONTROLE DE ACESSO
+    // ==============================
+    
+    function checkAccess(pageId) {
+      if ((pageId === 'courses') && currentUser.role !== 'admin') {
+        alert('Acesso negado! Apenas administradores podem acessar esta página.');
+        return false;
+      }
+      return true;
+    }
+
+    // ==============================
+    // FUNÇÕES DE NAVEGAÇÃO
+    // ==============================
+    
+    function setupNavigation() {
+      const navItems = document.querySelectorAll('.nav-item');
+      const pages = document.querySelectorAll('.page');
+      
+      navItems.forEach(item => {
+        item.addEventListener('click', function() {
+          const pageId = this.getAttribute('data-page');
+          
+          // Verificar acesso
+          if (!checkAccess(pageId)) {
+            return;
+          }
+          
+          loadPage(pageId, this);
+        });
+      });
+    }
+    
+    function loadPage(pageId, navElement) {
+      const pages = document.querySelectorAll('.page');
+      const navItems = document.querySelectorAll('.nav-item');
+      
+      // Atualizar nav ativo
+      navItems.forEach(nav => nav.classList.remove('active'));
+      navElement.classList.add('active');
+      
+      // Mostrar página correspondente
+      pages.forEach(page => page.classList.remove('active'));
+      document.getElementById(`${pageId}Page`).classList.add('active');
+      
+      // Inicializar página se necessário
+      if (pageId === 'ia') initChatPage();
+      if (pageId === 'feedback') initFeedbackPage();
+      if (pageId === 'courses') initCoursesPage();
+      if (pageId === 'lgpd') updateLGPDPage();
+    }
+
+    // ==============================
+    // DASHBOARD
+    // ==============================
+    
+    async function updateDashboardStats() {
+      try {
+        const courses = await getAllCourses();
+        const feedbacks = await getAllFeedbacks();
+        const users = await getAllUsers();
+        
+        document.getElementById('dashboardStats').innerHTML = `
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="stat-info">
+              <h3>${currentUser.username}</h3>
+              <p>Seu Usuário</p>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-book"></i>
+            </div>
+            <div class="stat-info">
+              <h3>${courses.length}</h3>
+              <p>Cursos Disponíveis</p>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-comments"></i>
+            </div>
+            <div class="stat-info">
+              <h3>${feedbacks.length}</h3>
+              <p>Feedbacks</p>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-info">
+              <h3>${users.length}</h3>
+              <p>Total de Usuários</p>
+            </div>
+          </div>
+        `;
+        
+        document.getElementById('totalCursosCount').textContent = courses.length;
+        document.getElementById('totalFeedbacksCount').textContent = feedbacks.length;
+        
+      } catch (error) {
+        console.error('Erro ao carregar estatísticas:', error);
+      }
+    }
+
+    // ==============================
+    // CHAT IA
+    // ==============================
+    
+    async function initChatPage() {
+      try {
+        const courses = await getAllCourses();
+        renderCoursesSidebar(courses);
+        setupQuickActions();
+        
+        // Configurar auto-expansão do textarea
+        const userInput = document.getElementById('userInput');
+        if (userInput) {
+          userInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+          });
+        }
+        
+      } catch (error) {
+        console.error('Erro ao inicializar chat:', error);
+      }
+    }
+
+    function renderCoursesSidebar(courses) {
+      const container = document.getElementById('cursosContainer');
+      container.innerHTML = '';
+      
+      courses.forEach(course => {
+        const courseElement = document.createElement('div');
+        courseElement.className = `curso-item ${currentCourseId === course.id ? 'active' : ''}`;
+        courseElement.innerHTML = `
+          <div class="curso-icon">
+            <i class="${course.icon || 'fas fa-book'}"></i>
+          </div>
+          <div class="curso-info">
+            <h3>${course.name}</h3>
+            <p>${course.duration}</p>
+          </div>
+        `;
+        
+        courseElement.addEventListener('click', () => selectCourse(course));
+        container.appendChild(courseElement);
+      });
+    }
+
+    function selectCourse(course) {
+      currentCourseId = course.id;
+      currentChatCourse = course;
+      
+      document.getElementById('currentCourse').innerHTML = `
+        <i class="fas fa-book"></i>
+        <span>${course.name}</span>
+      `;
+      
+      // Atualizar cursos ativos
+      document.querySelectorAll('.curso-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      event.target.closest('.curso-item').classList.add('active');
+      
+      addMessage('assistant', `Agora estou focado no curso de ${course.name}. Como posso ajudar com as vendas deste curso?`);
+    }
+
+    function setupQuickActions() {
+      const actions = [
+        { text: '📞 Criar script para ligação', prompt: 'Crie um script de vendas para ligação telefônica' },
+        { text: '💬 Script para WhatsApp', prompt: 'Elabore um script de vendas para WhatsApp' },
+        { text: '🛡️ Responder objeções', prompt: 'Liste as principais objeções e como respondê-las' },
+        { text: '🎯 Técnicas de fechamento', prompt: 'Sugira técnicas de fechamento para este curso' },
+        { text: '📊 Argumentos de vendas', prompt: 'Quais são os principais argumentos de venda?' },
+        { text: '💰 Falar sobre investimento', prompt: 'Como abordar o assunto do valor do curso?' }
+      ];
+      
+      const quickActions = document.getElementById('quickActions');
+      quickActions.innerHTML = '';
+      
+      actions.forEach(action => {
+        const button = document.createElement('button');
+        button.className = 'quick-action';
+        button.textContent = action.text;
+        button.addEventListener('click', () => {
+          if (currentCourseId) {
+            document.getElementById('userInput').value = action.prompt;
+            document.getElementById('userInput').focus();
+          } else {
+            alert('Por favor, selecione um curso primeiro!');
+          }
+        });
+        quickActions.appendChild(button);
+      });
+    }
+
+    function addMessage(role, content, isThinking = false) {
+      const messagesContainer = document.getElementById('messagesContainer');
+      
+      if (isThinking) {
+        const typingElement = document.createElement('div');
+        typingElement.className = 'typing-indicator';
+        typingElement.innerHTML = `
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        `;
+        messagesContainer.appendChild(typingElement);
+        return typingElement;
+      } else {
+        const messageElement = document.createElement('div');
+        messageElement.className = `message ${role}`;
+        messageElement.innerHTML = `
+          <div class="message-header">
+            <i class="fas fa-${role === 'user' ? 'user' : 'robot'}"></i>
+            ${role === 'user' ? 'Você' : 'Assistente IA'}
+          </div>
+          <div class="message-content">${formatMessage(content)}</div>
+        `;
+        messagesContainer.appendChild(messageElement);
+        return messageElement;
+      }
+      
+      // Scroll para baixo
+      setTimeout(() => {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }, 100);
+    }
+
+    function formatMessage(text) {
+      // Escapa HTML para evitar renderizar tags indesejadas (ex.: <s>, <del>)
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      const escaped = escapeHtml(text);
+      return escaped
+        .replace(/~~(.*?)~~/g, '<del>$1</del>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/\n/g, '<br>');
+    }
+
+    async function sendMessage() {
+      const userInput = document.getElementById('userInput');
+      const message = userInput.value.trim();
+      
+      if (!message) return;
+      
+      if (!currentCourseId) {
+        alert('Por favor, selecione um curso primeiro!');
+        return;
+      }
+      
+      // Adicionar mensagem do usuário
+      addMessage('user', message);
+      userInput.value = '';
+      userInput.style.height = 'auto';
+      
+      // Mostrar indicador de digitação
+      const typingEl = addMessage('assistant', '', true);
+      // Desabilitar botão de envio enquanto processa
+      const sendBtn = document.getElementById('sendButton');
+      if (sendBtn) sendBtn.disabled = true;
+
+      try {
+        // Preferir resposta online se a API estiver configurada
+        const apiKey = localStorage.getItem('openrouterApiKey');
+        let responseText;
+        if (apiKey) {
+          // Gera resposta via OpenRouter (streaming quando possível)
+          responseText = await generateOnlineResponse(message, typingEl);
+        } else {
+          responseText = await generateLocalResponse(message);
+          // Remover indicador de digitação
+          typingEl?.remove();
+          addMessage('assistant', responseText);
+        }
+        
+        // Salvar conversa no banco
+        if (currentUser) {
+          await addChat({
+            userId: currentUser.username,
+            courseId: currentCourseId,
+            userMessage: message,
+            aiResponse: responseText,
+            date: new Date().toISOString()
+          });
+        }
+        
+      } catch (error) {
+        console.error('Erro no chat:', error);
+        document.querySelector('.typing-indicator')?.remove();
+        addMessage('assistant', `Desculpe, ocorreu um erro: ${error && error.message ? error.message : error}. Tente novamente.`);
+      } finally {
+        if (sendBtn) sendBtn.disabled = false;
+      }
+    }
+
+    async function addChat(chatData) {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['chats'], 'readwrite');
+        const store = transaction.objectStore('chats');
+        const request = store.add(chatData);
+        
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function generateLocalResponse(userMessage) {
+      // Simular delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const course = currentChatCourse;
+      const lowerMessage = userMessage.toLowerCase();
+      
+      if (lowerMessage.includes('script') || lowerMessage.includes('ligação')) {
+        return `📞 **SCRIPT PARA LIGAÇÃO - ${course.name}**
+
+**Saudação:**
+"Olá, [Nome], tudo bem? Aqui é [Seu nome] da Assistance SM."
+
+**Apresentação:**
+"Estou entrando em contato sobre nosso curso de ${course.name} (${course.duration})."
+
+**Diferenciais:**
+• ${course.differentials?.[0] || 'Corpo docente qualificado'}
+• ${course.differentials?.[1] || 'Infraestrutura moderna'}
+
+**Call to Action:**
+"Gostaria de agendar uma visita para conhecer nossa estrutura?"`;
+      }
+      
+      // Resposta genérica
+      return `🤖 **SOBRE ${course.name}**
+
+*Duração:* ${course.duration}
+
+*Descrição:*
+${course.description?.substring(0, 200) || 'Curso de qualidade com foco no mercado'}...
+
+*Mercado de Trabalho:*
+${course.market?.[0] || 'Amplas oportunidades no mercado'}
+
+Como posso ajudar mais especificamente com este curso?`;
+    }
+
+    // ==============================
+    // RESPOSTA ONLINE VIA OPENROUTER
+    // ==============================
+
+    function getApiConfig() {
+      const key = localStorage.getItem('openrouterApiKey');
+      const model = localStorage.getItem('aiModel') || 'mistralai/mistral-7b-instruct:free';
+      const system = localStorage.getItem('systemInstructions') || 'Você é um assistente de IA útil e amigável. Responda de forma clara e concisa em português brasileiro.';
+      const temperature = parseFloat(localStorage.getItem('aiTemperature') || '0.7');
+      const maxTokens = parseInt(localStorage.getItem('maxTokens') || '500', 10);
+      return { key, model, system, temperature, maxTokens };
+    }
+
+    async function generateOnlineResponse(userMessage, typingElement) {
+      const cfg = getApiConfig();
+      if (!cfg.key) throw new Error('API key não configurada');
+
+      // Preparar mensagens (chat format)
+      const messages = [
+        { role: 'system', content: cfg.system },
+        { role: 'user', content: `Curso: ${currentChatCourse?.name || 'N/A'}\n` + userMessage }
+      ];
+
+      // Remover indicador de digitação e criar elemento de resposta que será atualizado
+      typingElement?.remove();
+      const assistantEl = addMessage('assistant', '');
+      const contentEl = assistantEl.querySelector('.message-content');
+
+      // Tentar streaming SSE endpoint(s)
+      const endpoints = [
+        'https://api.openrouter.ai/v1/chat/completions',
+        'https://openrouter.ai/v1/chat/completions',
+        'https://openrouter.ai/api/v1/chat/completions'
+      ];
+
+      let finalText = '';
+
+      for (const url of endpoints) {
+        try {
+          const controller = new AbortController();
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'text/event-stream',
+              'Authorization': `Bearer ${cfg.key}`
+            },
+            body: JSON.stringify({ model: cfg.model, messages, temperature: cfg.temperature, max_tokens: cfg.maxTokens, stream: true }),
+            signal: controller.signal
+          });
+
+          if (!res.ok) {
+            console.warn('OpenRouter endpoint retornou não-ok', url, res.status, await res.text().catch(()=>''));
+            continue;
+          }
+
+          if (!res.body) {
+            console.warn('Resposta sem body (não streaming) em', url);
+            continue;
+          }
+
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder();
+          let done = false;
+          let buffer = '';
+
+          while (!done) {
+            const { value, done: d } = await reader.read();
+            done = d;
+            if (!value) continue;
+
+            buffer += decoder.decode(value, { stream: true });
+
+            // Processar eventos SSE separados por \n\n
+            let parts = buffer.split('\n\n');
+            buffer = parts.pop(); // remainder
+
+            for (const part of parts) {
+              const lines = part.split('\n').map(l => l.trim());
+              for (const line of lines) {
+                if (!line) continue;
+                if (!line.startsWith('data:')) continue;
+
+                const payload = line.replace(/^data:\s?/, '');
+                if (payload === '[DONE]') {
+                  done = true;
+                  break;
+                }
+
+                try {
+                  const json = JSON.parse(payload);
+                  const delta = json.choices?.[0]?.delta?.content;
+                  if (delta) {
+                    finalText += delta;
+                    contentEl.innerHTML = formatMessage(finalText);
+                    const messagesContainer = document.getElementById('messagesContainer');
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                  }
+                  if (json.choices?.[0]?.message?.content) {
+                    finalText = json.choices[0].message.content;
+                    contentEl.innerHTML = formatMessage(finalText);
+                    const messagesContainer = document.getElementById('messagesContainer');
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                  }
+                } catch (err) {
+                  console.debug('Não foi possível parsear payload SSE:', err);
+                }
+              }
+              if (done) break;
+            }
+            if (done) break;
+          }
+
+          // Se obtivemos texto, retornamos
+          if (finalText.trim()) return finalText.trim();
+          if (contentEl.textContent && contentEl.textContent.trim()) return contentEl.textContent.trim();
+          // caso contrário, tentar próximo endpoint
+          continue;
+
+        } catch (err) {
+          console.warn('Stream endpoint falhou:', url, err);
+          continue;
+        }
+      }
+
+      // Se nenhum endpoint de streaming funcionou, tentar chamada normal (não streaming)
+      try {
+        const fallbackUrl = 'https://api.openrouter.ai/v1/chat/completions';
+        const r = await fetch(fallbackUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${cfg.key}`
+          },
+          body: JSON.stringify({ model: cfg.model, messages, temperature: cfg.temperature, max_tokens: cfg.maxTokens })
+        });
+
+        if (!r.ok) throw new Error('Resposta da API não OK');
+        const data = await r.json();
+        const result = data.choices?.[0]?.message?.content || data.choices?.[0]?.text || '';
+        contentEl.innerHTML = formatMessage(result);
+        return result;
+      } catch (err) {
+        console.warn('Fallback não-streaming falhou:', err);
+        // Informar e usar gerador local como fallback
+        addMessage('assistant', '(Atenção) Falha ao conectar à API — usando resposta local.');
+        const local = await generateLocalResponse(userMessage);
+        contentEl.innerHTML = formatMessage(local);
+        return local;
+      }
+    }
+
+    function handleKeyPress(event) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+      }
+    }
+
+    // ==============================
+    // SISTEMA DE FEEDBACK MELHORADO
+    // ==============================
+    
+    let selectedRating = 0;
+    let ratingTexts = {
+      1: "Péssimo",
+      2: "Ruim", 
+      3: "Regular",
+      4: "Bom",
+      5: "Excelente"
+    };
+
+    async function initFeedbackPage() {
+      setupRatingStars();
+      loadFeedbackStats();
+      loadFeedbacks();
+    }
+
+    function setupRatingStars() {
+      const stars = document.querySelectorAll('.star');
+      const ratingText = document.getElementById('ratingText');
+      
+      stars.forEach(star => {
+        star.addEventListener('mouseover', () => {
+          const rating = parseInt(star.getAttribute('data-rating'));
+          ratingText.textContent = ratingTexts[rating];
+          
+          stars.forEach(s => {
+            const sRating = parseInt(s.getAttribute('data-rating'));
+            s.textContent = sRating <= rating ? '★' : '☆';
+          });
+        });
+        
+        star.addEventListener('mouseout', () => {
+          stars.forEach(s => {
+            const sRating = parseInt(s.getAttribute('data-rating'));
+            s.textContent = sRating <= selectedRating ? '★' : '☆';
+          });
+          ratingText.textContent = selectedRating > 0 ? ratingTexts[selectedRating] : "Clique nas estrelas para avaliar";
+        });
+        
+        star.addEventListener('click', () => {
+          selectedRating = parseInt(star.getAttribute('data-rating'));
+          
+          stars.forEach(s => {
+            const sRating = parseInt(s.getAttribute('data-rating'));
+            s.classList.toggle('active', sRating <= selectedRating);
+            s.textContent = sRating <= selectedRating ? '★' : '☆';
+          });
+          
+          ratingText.textContent = ratingTexts[selectedRating];
+          ratingText.style.color = '#ffc107';
+          ratingText.style.fontWeight = '600';
+        });
+      });
+    }
+
+    async function loadFeedbackStats() {
+      try {
+        const feedbacks = await getAllFeedbacks();
+        const container = document.getElementById('feedbackStats');
+        
+        if (feedbacks.length === 0) {
+          container.innerHTML = `
+            <div class="stat-item">
+              <div class="stat-value">0</div>
+              <div class="stat-label">Avaliações</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">0.0</div>
+              <div class="stat-label">Média</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">0</div>
+              <div class="stat-label">Hoje</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">0%</div>
+              <div class="stat-label">Positivas</div>
+            </div>
+          `;
+          return;
+        }
+        
+        // Calcular estatísticas
+        const total = feedbacks.length;
+        const avgRating = feedbacks.reduce((sum, f) => sum + f.rating, 0) / total;
+        const today = new Date().toISOString().split('T')[0];
+        const todayCount = feedbacks.filter(f => f.date.split('T')[0] === today).length;
+        const positiveCount = feedbacks.filter(f => f.rating >= 4).length;
+        const positivePercentage = Math.round((positiveCount / total) * 100);
+        
+        container.innerHTML = `
+          <div class="stat-item">
+            <div class="stat-value">${total}</div>
+            <div class="stat-label">Avaliações</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">${avgRating.toFixed(1)}</div>
+            <div class="stat-label">Média</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">${todayCount}</div>
+            <div class="stat-label">Hoje</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">${positivePercentage}%</div>
+            <div class="stat-label">Positivas</div>
+          </div>
+        `;
+        
+      } catch (error) {
+        console.error('Erro ao carregar estatísticas de feedback:', error);
+      }
+    }
+
+    async function submitFeedback() {
+      if (selectedRating === 0) {
+        alert('Por favor, selecione uma avaliação com as estrelas.');
+        return;
+      }
+      
+      const text = document.getElementById('feedbackText').value.trim();
+      if (!text) {
+        alert('Por favor, digite seu comentário.');
+        return;
+      }
+      
+      try {
+        await addFeedback({
+          userId: currentUser.username,
+          userName: currentUser.nome,
+          rating: selectedRating,
+          text: text,
+          date: new Date().toISOString()
+        });
+        
+        // Mostrar mensagem de sucesso
+        const notification = document.createElement('div');
+        notification.className = 'alert alert-success';
+        notification.innerHTML = `<i class="fas fa-check-circle"></i> Feedback enviado com sucesso! Obrigado por sua contribuição.`;
+        document.querySelector('.feedback-form-container').insertBefore(notification, document.querySelector('.feedback-form-container button'));
+        
+        setTimeout(() => notification.remove(), 3000);
+        
+        // Limpar formulário
+        document.getElementById('feedbackText').value = '';
+        selectedRating = 0;
+        document.querySelectorAll('.star').forEach(star => {
+          star.classList.remove('active');
+          star.textContent = '☆';
+        });
+        
+        document.getElementById('ratingText').textContent = 'Clique nas estrelas para avaliar';
+        document.getElementById('ratingText').style.color = '';
+        document.getElementById('ratingText').style.fontWeight = '';
+        
+        // Recarregar feedbacks e estatísticas
+        loadFeedbacks();
+        loadFeedbackStats();
+        
+      } catch (error) {
+        console.error('Erro ao enviar feedback:', error);
+        alert('Erro ao enviar feedback. Tente novamente.');
+      }
+    }
+
+    async function loadFeedbacks() {
+      try {
+        const feedbacks = await getAllFeedbacks();
+        const container = document.getElementById('feedbackList');
+        const sortValue = document.getElementById('feedbackSort')?.value || 'newest';
+        
+        if (feedbacks.length === 0) {
+          container.innerHTML = `
+            <div class="empty-feedback">
+              <i class="far fa-comment-dots"></i>
+              <h3>Nenhum feedback ainda</h3>
+              <p>Seja o primeiro a avaliar o sistema!</p>
+            </div>
+          `;
+          return;
+        }
+        
+        // Ordenar feedbacks
+        let sortedFeedbacks = [...feedbacks];
+        switch(sortValue) {
+          case 'newest':
+            sortedFeedbacks.sort((a, b) => new Date(b.date) - new Date(a.date));
+            break;
+          case 'oldest':
+            sortedFeedbacks.sort((a, b) => new Date(a.date) - new Date(b.date));
+            break;
+          case 'highest':
+            sortedFeedbacks.sort((a, b) => b.rating - a.rating);
+            break;
+          case 'lowest':
+            sortedFeedbacks.sort((a, b) => a.rating - b.rating);
+            break;
+        }
+        
+        container.innerHTML = sortedFeedbacks.map(feedback => {
+          const date = new Date(feedback.date);
+          const initials = feedback.userName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+          
+          return `
+            <div class="feedback-item">
+              <div class="feedback-item-header">
+                <div class="feedback-user-info">
+                  <div class="feedback-user-avatar">${initials}</div>
+                  <div class="feedback-user-details">
+                    <h4>${feedback.userName}</h4>
+                    <div class="feedback-rating-stars">
+                      ${'★'.repeat(feedback.rating)}${'☆'.repeat(5 - feedback.rating)}
+                    </div>
+                  </div>
+                </div>
+                <div class="feedback-date">
+                  ${date.toLocaleDateString('pt-BR')} ${date.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}
+                </div>
+              </div>
+              <div class="feedback-content">${feedback.text}</div>
+            </div>
+          `;
+        }).join('');
+        
+      } catch (error) {
+        console.error('Erro ao carregar feedbacks:', error);
+        container.innerHTML = `
+          <div class="empty-feedback">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Erro ao carregar feedbacks</h3>
+            <p>Tente recarregar a página</p>
+          </div>
+        `;
+      }
+    }
+
+    // ==============================
+    // GESTÃO DE CURSOS MELHORADO (APENAS ADMIN)
+    // ==============================
+    
+    async function initCoursesPage() {
+      if (currentUser.role !== 'admin') {
+        alert('Acesso negado! Apenas administradores podem gerenciar cursos.');
+        return;
+      }
+      
+      loadCourses();
+    }
+
+    async function loadCourses() {
+      try {
+        const courses = await getAllCourses();
+        const container = document.getElementById('coursesList');
+        
+        if (courses.length === 0) {
+          container.innerHTML = `
+            <div class="no-courses">
+              <i class="fas fa-book-open"></i>
+              <h3>Nenhum curso cadastrado</h3>
+              <p>Use o formulário acima para adicionar o primeiro curso.</p>
+            </div>
+          `;
+          return;
+        }
+        
+        container.innerHTML = `
+          <table class="courses-table">
+            <thead>
+              <tr>
+                <th>Curso</th>
+                <th>Duração</th>
+                <th>Diferenciais</th>
+                <th>Mercado</th>
+                <th style="text-align: right;">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${courses.map(course => {
+                const differentials = course.differentials?.slice(0, 2).join(', ') || 'Sem diferenciais';
+                const market = course.market?.[0]?.split(':')[0] || 'Não informado';
+                
+                return `
+                  <tr>
+                    <td>
+                      <div class="course-name-cell">
+                        <div class="course-icon-small">
+                          <i class="${course.icon || 'fas fa-book'}"></i>
+                        </div>
+                        <div class="course-details">
+                          <div class="course-name">${course.name}</div>
+                          <div class="course-meta">
+                            <i class="far fa-calendar"></i> Criado em ${new Date(course.createdAt).toLocaleDateString('pt-BR')}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="badge badge-warning">${course.duration}</span></td>
+                    <td>${differentials}</td>
+                    <td>${market}</td>
+                    <td>
+                      <div class="course-actions">
+                        <button class="btn btn-sm btn-primary" onclick="editCourse('${course.id}')">
+                          <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteCoursePrompt('${course.id}')">
+                          <i class="fas fa-trash"></i> Excluir
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        `;
+        
+      } catch (error) {
+        console.error('Erro ao carregar cursos:', error);
+        container.innerHTML = `
+          <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i>
+            Erro ao carregar cursos. Tente recarregar a página.
+          </div>
+        `;
+      }
+    }
+
+    async function saveCourse() {
+      const id = document.getElementById('courseId').value;
+      const name = document.getElementById('courseName').value.trim();
+      const duration = document.getElementById('courseDuration').value.trim();
+      const icon = document.getElementById('courseIcon').value.trim();
+      const description = document.getElementById('courseDescription').value.trim();
+      
+      if (!name || !duration || !description) {
+        alert('Por favor, preencha os campos obrigatórios (Nome, Duração, Descrição).');
+        return;
+      }
+      
+      // Processar arrays
+      const differentials = document.getElementById('courseDifferentials').value
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0);
+      
+      const market = document.getElementById('courseMarket').value
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0);
+      
+      const postgrad = document.getElementById('coursePostgrad').value
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0);
+      
+      const events = document.getElementById('courseEvents').value
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0);
+      
+      const internships = document.getElementById('courseInternships').value.trim();
+      
+      const courseData = {
+        id: id || Date.now().toString(),
+        name,
+        duration,
+        icon: icon || 'fas fa-book',
+        description,
+        differentials,
+        market,
+        postgrad,
+        events,
+        internships,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      try {
+        if (id) {
+          // Atualizar curso existente
+          await updateCourse(id, courseData);
+        } else {
+          // Adicionar novo curso
+          await addCourse(courseData);
+        }
+        
+        // Mostrar mensagem de sucesso
+        const notification = document.createElement('div');
+        notification.className = 'alert alert-success';
+        notification.innerHTML = `<i class="fas fa-check-circle"></i> Curso ${id ? 'atualizado' : 'adicionado'} com sucesso!`;
+        document.querySelector('.course-form-container').insertBefore(notification, document.querySelector('.course-form-container .form-actions'));
+        
+        setTimeout(() => notification.remove(), 3000);
+        
+        // Resetar formulário
+        resetCourseForm();
+        
+        // Recarregar lista
+        loadCourses();
+        
+      } catch (error) {
+        console.error('Erro ao salvar curso:', error);
+        alert('Erro ao salvar curso. Tente novamente.');
+      }
+    }
+
+    async function editCourse(courseId) {
+      try {
+        const course = await getCourse(courseId);
+        
+        if (!course) {
+          alert('Curso não encontrado.');
+          return;
+        }
+        
+        // Preencher formulário
+        document.getElementById('courseId').value = course.id;
+        document.getElementById('courseName').value = course.name;
+        document.getElementById('courseDuration').value = course.duration;
+        document.getElementById('courseIcon').value = course.icon;
+        document.getElementById('courseDescription').value = course.description;
+        document.getElementById('courseDifferentials').value = course.differentials?.join('\n') || '';
+        document.getElementById('courseMarket').value = course.market?.join('\n') || '';
+        document.getElementById('coursePostgrad').value = course.postgrad?.join('\n') || '';
+        document.getElementById('courseEvents').value = course.events?.join('\n') || '';
+        document.getElementById('courseInternships').value = course.internships || '';
+        
+        // Atualizar título e botões
+        document.getElementById('courseFormTitle').textContent = 'Editar Curso';
+        document.getElementById('saveCourseBtn').innerHTML = '<i class="fas fa-save"></i> Atualizar Curso';
+        document.getElementById('cancelCourseBtn').style.display = 'inline-flex';
+        
+        // Scroll para o formulário
+        document.getElementById('courseFormContainer').scrollIntoView({ behavior: 'smooth' });
+        
+      } catch (error) {
+        console.error('Erro ao carregar curso:', error);
+        alert('Erro ao carregar curso para edição.');
+      }
+    }
+
+    function resetCourseForm() {
+      document.getElementById('courseForm').reset();
+      document.getElementById('courseId').value = '';
+      document.getElementById('courseFormTitle').textContent = 'Adicionar Novo Curso';
+      document.getElementById('saveCourseBtn').innerHTML = '<i class="fas fa-save"></i> Salvar Curso';
+      document.getElementById('cancelCourseBtn').style.display = 'none';
+    }
+
+    async function deleteCoursePrompt(courseId) {
+      if (!confirm('Tem certeza que deseja excluir este curso? Esta ação não pode ser desfeita.')) {
+        return;
+      }
+      
+      try {
+        const course = await getCourse(courseId);
+        await deleteCourse(courseId);
+        
+        // Mostrar mensagem de sucesso
+        const notification = document.createElement('div');
+        notification.className = 'alert alert-success';
+        notification.innerHTML = `<i class="fas fa-check-circle"></i> Curso "${course.name}" excluído com sucesso!`;
+        document.querySelector('.courses-table-container').insertBefore(notification, document.querySelector('#coursesList'));
+        
+        setTimeout(() => notification.remove(), 3000);
+        
+        loadCourses();
+        
+      } catch (error) {
+        console.error('Erro ao excluir curso:', error);
+        alert('Erro ao excluir curso. Tente novamente.');
+      }
+    }
+
+    // ==============================
+    // PÁGINA LGPD
+    // ==============================
+    
+    async function updateLGPDPage() {
+      // Pode-se adicionar lógica personalizada aqui se necessário
+    }
+
+    // ==============================
+    // FUNÇÕES AUXILIARES
+    // ==============================
+
+    function clearCache() {
+      if (!confirm('Tem certeza que deseja limpar o cache do navegador?')) {
+        return;
+      }
+      
+      try {
+        sessionStorage.clear();
+        alert('Cache limpo com sucesso!');
+      } catch (error) {
+        console.error('Erro ao limpar cache:', error);
+        alert('Erro ao limpar cache.');
+      }
+    }
+
+    // ==============================
+    // INICIALIZAÇÃO DO SISTEMA
+    // ==============================
+
+    async function initializeSystem() {
+      try {
+        // Verificar autenticação
+        const loggedUser = checkAuth();
+        if (!loggedUser) {
+          // Não redirecionar para a página de login — iniciar como visitante (role 'user')
+          console.log('Nenhum usuário autenticado — iniciando como visitante.');
+          currentUser = { username: 'guest', nome: 'Visitante', role: 'user' };
+        } else {
+          currentUser = loggedUser;
+        }
+        
+        // Inicializar banco de dados
+        await initDatabase();
+        
+        // Carregar dados iniciais se o banco estiver vazio
+        const users = await getAllUsers();
+        if (users.length === 0) {
+          // Adicionar usuários iniciais
+          const initialUsers = [
+            {
+              username: 'admin',
+              nome: 'Administrador',
+              senha: 'admin123',
+              role: 'admin',
+              status: 'active',
+              firstLogin: false,
+              lastAccess: null
+            },
+            {
+              username: 'lisandra',
+              nome: 'Lisandra',
+              senha: 'lisandra123',
+              role: 'user',
+              status: 'active',
+              firstLogin: true,
+              lastAccess: null
+            }
+          ];
+          
+          for (const user of initialUsers) {
+            await addUser(user);
+          }
+          
+          // Adicionar cursos iniciais
+          const initialCourses = [
+            {
+              id: '1',
+              name: 'Direito',
+              duration: '5 anos (bacharelado)',
+              icon: 'fas fa-balance-scale',
+              description: 'O curso de Direito é um curso de graduação bacharelado com duração de 5 anos que tem como missão formar profissionais com base teórica sólida, visão crítica e responsabilidade social.',
+              differentials: ['Corpo docente qualificado', 'NPJ referência em atendimento gratuito', 'Parcerias institucionais para empregabilidade'],
+              market: ['Advogado Júnior: R$ 2.500 - R$ 4.600', 'Advogado Pleno: R$ 6.000 - R$ 12.000', 'Advogado Sênior: R$ 8.000 - R$ 22.000'],
+              postgrad: ['Direito de Família', 'Direito Ambiental', 'Direito Penal e Processual Penal'],
+              events: ['Aula inaugural', 'Cerimônia do Vade Mecum', 'Semana Acadêmica'],
+              internships: 'Estágio supervisionado em NPJ; estágios em órgãos públicos e escritórios parceiros.',
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+            },
+            {
+              id: '2',
+              name: 'Enfermagem',
+              duration: '~5 anos',
+              icon: 'fas fa-user-nurse',
+              description: 'O curso de Enfermagem tem duração média de cinco anos e forma profissionais para atuar com competência técnica e sensibilidade humana no cuidado à saúde.',
+              differentials: ['Estágios supervisionados desde cedo', 'Laboratórios de Anatomia e Semiologia', 'Ligas acadêmicas e semanas temáticas'],
+              market: ['Enfermeiro de Maternidade: R$4.500 - R$6.000', 'Enfermeiro em Clínicas/Hospitais: R$5.000 - R$7.000'],
+              postgrad: ['Obstetrícia', 'Terapia Intensiva', 'Saúde Pública'],
+              events: ['Cerimônia do Jaleco', 'Semana da Enfermagem', 'Anatomy'],
+              internships: 'Estágios supervisionados em hospitais, UBS e centros de referência; atividades práticas em laboratórios.',
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+            }
+          ];
+          
+          for (const course of initialCourses) {
+            await addCourse(course);
+          }
+          
+          console.log('Dados iniciais carregados com sucesso');
+        }
+        
+        // Atualizar interface do usuário
+        updateUserInterface();
+        
+        // Configurar navegação
+        setupNavigation();
+        
+        // Atualizar dashboard
+        updateDashboardStats();
+        updateApiStatus();
+        
+        // Mostrar sistema
+        document.getElementById('app').style.display = 'flex';
+        
+        console.log('Sistema inicializado com sucesso');
+        
+      } catch (error) {
+        console.error('Erro ao inicializar sistema:', error);
+        alert('Erro ao inicializar sistema. Por favor, recarregue a página.');
+      }
+    }
+
+    // Adicionar usuário ao banco (função auxiliar)
+    async function addUser(user) {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['users'], 'readwrite');
+        const store = transaction.objectStore('users');
+        const request = store.add(user);
+        
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    // Inicializar quando o DOM estiver pronto
+    document.addEventListener('DOMContentLoaded', initializeSystem);
+
+    // Expor funções globais para uso em botões
+    window.logout = logout;
+    window.clearCache = clearCache;
+    window.sendMessage = sendMessage;
+    window.handleKeyPress = handleKeyPress;
+    window.submitFeedback = submitFeedback;
+    window.saveCourse = saveCourse;
+    window.resetCourseForm = resetCourseForm;
+    window.editCourse = editCourse;
+    window.deleteCoursePrompt = deleteCoursePrompt;
+    window.loadFeedbacks = loadFeedbacks; // Exportar para o select de ordenação
+
+    // Atualiza indicador simples de disponibilidade da API
+    function updateApiStatus() {
+      const badge = document.getElementById('apiStatusBadge');
+      if (!badge) return;
+      const key = localStorage.getItem('openrouterApiKey');
+      if (key) {
+        badge.textContent = 'API: Configurada';
+        badge.style.color = 'var(--success)';
+      } else {
+        badge.textContent = 'API: Offline';
+        badge.style.color = 'var(--danger)';
+      }
+    }
+
+    // Atualizar quando outro documento altera a chave
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'openrouterApiKey') updateApiStatus();
+    });
+  </script>
+</body>
+</html>
