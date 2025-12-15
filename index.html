@@ -5,1775 +5,256 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Assistance SM - Sistema IA & Gestão</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    /* ... (todo o CSS permanece igual) ... */
-  </style>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
   <!-- Sistema Principal -->
   <div id="app" class="app-container" style="display: none;">
-    <!-- ... (Sidebar permanece igual) ... -->
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <i class="fas fa-robot"></i>
+          <h2>Assistance SM</h2>
+        </div>
+        <div class="user-info">
+          <div class="user-avatar" id="userAvatar">AD</div>
+          <div class="user-details">
+            <h3 id="userName">Administrador</h3>
+            <p id="userRole">Administrador</p>
+          </div>
+        </div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-item active" data-page="dashboard">
+          <i class="fas fa-home"></i>
+          <span>Dashboard</span>
+        </div>
+        <div class="nav-item" data-page="ia">
+          <i class="fas fa-comments"></i>
+          <span>Chat IA</span>
+        </div>
+        <div class="nav-item" data-page="courses">
+          <i class="fas fa-book"></i>
+          <span>Cursos</span>
+        </div>
+        <div class="nav-item" data-page="feedback">
+          <i class="fas fa-star"></i>
+          <span>Feedback</span>
+        </div>
+        <div class="nav-item" data-page="about">
+          <i class="fas fa-info-circle"></i>
+          <span>Sobre</span>
+        </div>
+        <div class="nav-item" data-page="lgpd">
+          <i class="fas fa-shield-alt"></i>
+          <span>LGPD</span>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <button class="btn-logout" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i>
+          Sair
+        </button>
+      </div>
+    </div>
     
     <!-- Conteúdo Principal -->
     <div class="main-content">
       <div class="top-bar">
-        <!-- ... (Top bar permanece igual) ... -->
+        <div class="top-bar-left">
+          <div class="welcome-message" id="welcomeMessage">
+            Bem-vindo de volta!
+          </div>
+        </div>
+        <div class="top-bar-right">
+          <div class="api-status">
+            <span id="apiStatusBadge">API: Offline</span>
+          </div>
+          <button class="btn btn-sm btn-secondary" onclick="clearCache()">
+            <i class="fas fa-broom"></i> Limpar Cache
+          </button>
+        </div>
       </div>
       
       <!-- Páginas -->
       <div id="pages">
-        <!-- ... (Dashboard, IA, Feedback permanecem iguais) ... -->
-        
-        <!-- Gestão de Cursos (VISÍVEL PARA TODOS) - MODIFICADO -->
-        <div id="coursesPage" class="page">
+        <!-- Dashboard -->
+        <div id="dashboardPage" class="page active">
           <div class="container">
-            <!-- Cabeçalho -->
-            <div class="courses-management-container">
-              <div class="courses-header">
-                <div class="courses-title-section">
-                  <div class="courses-icon">
-                    <i class="fas fa-book"></i>
-                  </div>
-                  <div>
-                    <h1 class="courses-title">Gestão de Cursos</h1>
-                    <p class="courses-subtitle">Gerencie e explore todos os cursos disponíveis</p>
-                  </div>
+            <h1 class="page-title">
+              <i class="fas fa-tachometer-alt"></i>
+              Dashboard
+            </h1>
+            
+            <div class="stats-grid" id="dashboardStats">
+              <!-- Estatísticas serão carregadas aqui -->
+            </div>
+            
+            <div class="dashboard-content">
+              <div class="card">
+                <div class="card-header">
+                  <h3><i class="fas fa-book"></i> Resumo de Cursos</h3>
                 </div>
-                
-                <!-- BOTÃO PARA TODOS ADICIONAREM NOVO CURSO -->
-                <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
-                  <div>
-                    <button class="btn btn-success" onclick="showAddCourseForm()" id="addCourseBtn">
-                      <i class="fas fa-plus"></i> Adicionar Novo Curso
-                    </button>
-                    <button class="btn btn-info" onclick="loadCourses()" style="margin-left: 10px;">
-                      <i class="fas fa-sync"></i> Atualizar Lista
-                    </button>
-                  </div>
-                  <div style="font-size: 14px; color: var(--secondary);">
-                    <i class="fas fa-info-circle"></i> Total: <span id="totalCoursesCount">0</span> cursos
-                  </div>
+                <div class="card-body">
+                  <p>Total de cursos disponíveis: <strong id="totalCursosCount">0</strong></p>
+                  <p>Total de feedbacks recebidos: <strong id="totalFeedbacksCount">0</strong></p>
                 </div>
               </div>
               
-              <!-- Formulário de Curso (VISÍVEL PARA TODOS) -->
-              <div class="course-form-container" id="courseFormContainer" style="display: none;">
-                <div class="form-header">
-                  <div class="form-icon">
-                    <i class="fas fa-plus"></i>
-                  </div>
-                  <h3 id="courseFormTitle">Adicionar Novo Curso</h3>
-                  <button class="btn btn-sm btn-secondary" onclick="hideCourseForm()" style="margin-left: auto;">
-                    <i class="fas fa-times"></i> Fechar
-                  </button>
+              <div class="card">
+                <div class="card-header">
+                  <h3><i class="fas fa-user"></i> Seu Perfil</h3>
                 </div>
-                
-                <form id="courseForm">
-                  <input type="hidden" id="courseId">
-                  
-                  <div class="form-grid">
-                    <div class="form-group">
-                      <label class="form-label required">
-                        <i class="fas fa-book"></i> Nome do Curso
-                      </label>
-                      <input type="text" id="courseName" class="form-control" required placeholder="Ex: Direito">
-                    </div>
-                    
-                    <div class="form-group">
-                      <label class="form-label required">
-                        <i class="fas fa-clock"></i> Duração
-                      </label>
-                      <input type="text" id="courseDuration" class="form-control" required placeholder="Ex: 5 anos (bacharelado)">
-                    </div>
-                    
-                    <div class="form-group">
-                      <label class="form-label">
-                        <i class="fas fa-icons"></i> Ícone (Font Awesome)
-                      </label>
-                      <input type="text" id="courseIcon" class="form-control" placeholder="Ex: fas fa-graduation-cap">
-                      <small style="color: var(--secondary); font-size: 12px; margin-top: 5px; display: block;">
-                        Use classes do Font Awesome (ex: fas fa-book, fas fa-user-md)
-                      </small>
+                <div class="card-body">
+                  <div class="user-profile-summary">
+                    <div class="profile-avatar-large" id="userAvatarLarge">AD</div>
+                    <div class="profile-info">
+                      <h4 id="userFullName">Administrador</h4>
+                      <p><i class="fas fa-user-tag"></i> <span id="userRoleBadge">Administrador</span></p>
+                      <p><i class="fas fa-calendar"></i> Último acesso: <span id="lastAccess">Agora</span></p>
                     </div>
                   </div>
-                  
-                  <div class="form-group">
-                    <label class="form-label required">
-                      <i class="fas fa-align-left"></i> Descrição Completa
-                    </label>
-                    <textarea id="courseDescription" class="form-control" rows="4" required placeholder="Descreva o curso..."></textarea>
-                  </div>
-                  
-                  <div class="form-grid">
-                    <div class="form-group">
-                      <label class="form-label">
-                        <i class="fas fa-star"></i> Diferenciais
-                      </label>
-                      <textarea id="courseDifferentials" class="form-control" rows="3" placeholder="Cada diferencial em uma linha"></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                      <label class="form-label">
-                        <i class="fas fa-briefcase"></i> Mercado de Trabalho
-                      </label>
-                      <textarea id="courseMarket" class="form-control" rows="3" 
-                                placeholder="Ex: Advogado Júnior: R$ 2.500 - R$ 4.600
-Advogado Pleno: R$ 6.000 - R$ 12.000
-Advogado Sênior: R$ 8.000 - R$ 22.000"></textarea>
-                      <small style="color: var(--secondary); font-size: 12px; margin-top: 5px; display: block;">
-                        Uma linha por cargo/salário
-                      </small>
-                    </div>
-                  </div>
-                  
-                  <div class="form-grid">
-                    <div class="form-group">
-                      <label class="form-label">
-                        <i class="fas fa-graduation-cap"></i> Especializações
-                      </label>
-                      <textarea id="coursePostgrad" class="form-control" rows="3" placeholder="Ex: Direito de Família"></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                      <label class="form-label">
-                        <i class="fas fa-calendar-alt"></i> Eventos e Visitas
-                      </label>
-                      <textarea id="courseEvents" class="form-control" rows="3" placeholder="Ex: Semana Acadêmica"></textarea>
-                    </div>
-                  </div>
-                  
-                  <div class="form-grid">
-                    <div class="form-group">
-                      <label class="form-label">
-                        <i class="fas fa-building"></i> Locais de Estágio
-                      </label>
-                      <textarea id="courseInternships" class="form-control" rows="3" 
-                                placeholder="Ex: Escritórios de advocacia
-Órgãos públicos
-Tribunais"></textarea>
-                      <small style="color: var(--secondary); font-size: 12px; margin-top: 5px; display: block;">
-                        Locais onde os alunos podem estagiar
-                      </small>
-                    </div>
-                    
-                    <div class="form-group">
-                      <label class="form-label">
-                        <i class="fas fa-graduation-cap"></i> Modalidades Oferecidas
-                      </label>
-                      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                          <input type="checkbox" id="modalidadePresencial" checked>
-                          <label for="modalidadePresencial">🎓 Presencial</label>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                          <input type="checkbox" id="modalidadeSemipresencial" checked>
-                          <label for="modalidadeSemipresencial">🔄 Semipresencial</label>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                          <input type="checkbox" id="modalidadeOnline" checked>
-                          <label for="modalidadeOnline">📹 Ao Vivo (Online)</label>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                          <input type="checkbox" id="modalidadeEAD" checked>
-                          <label for="modalidadeEAD">💻 EAD 100%</label>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div class="form-actions">
-                    <button type="button" class="btn btn-primary btn-lg" onclick="saveCourse()" id="saveCourseBtn">
-                      <i class="fas fa-save"></i> Salvar Curso
-                    </button>
-                    <button type="button" class="btn btn-danger btn-lg" onclick="resetCourseForm()" id="cancelCourseBtn" style="display: none;">
-                      <i class="fas fa-times"></i> Cancelar Edição
-                    </button>
-                  </div>
-                </form>
-              </div>
-              
-              <!-- Lista de Cursos -->
-              <div class="courses-table-container">
-                <h3 style="font-size: 18px; font-weight: 700; color: var(--dark); margin: 30px 0 20px 0; display: flex; align-items: center; gap: 10px;">
-                  <i class="fas fa-list"></i> Cursos Cadastrados
-                </h3>
-                
-                <div id="coursesList">
-                  <!-- Cursos serão carregados aqui -->
                 </div>
               </div>
             </div>
           </div>
         </div>
         
-        <!-- ... (Sobre e LGPD permanecem iguais) ... -->
+        <!-- Chat IA -->
+        <div id="iaPage" class="page">
+          <!-- Conteúdo do chat será carregado pelo JavaScript -->
+        </div>
+        
+        <!-- Gestão de Cursos -->
+        <div id="coursesPage" class="page">
+          <!-- Conteúdo será carregado pelo JavaScript -->
+        </div>
+        
+        <!-- Feedback -->
+        <div id="feedbackPage" class="page">
+          <!-- Conteúdo será carregado pelo JavaScript -->
+        </div>
+        
+        <!-- Sobre -->
+        <div id="aboutPage" class="page">
+          <div class="container">
+            <h1 class="page-title">
+              <i class="fas fa-info-circle"></i>
+              Sobre o Sistema
+            </h1>
+            
+            <div class="about-content">
+              <div class="card">
+                <div class="card-header">
+                  <h3>Assistance SM - Sistema IA & Gestão</h3>
+                </div>
+                <div class="card-body">
+                  <p><strong>Versão:</strong> 2.0</p>
+                  <p><strong>Desenvolvido por:</strong> Equipe Assistance SM</p>
+                  <p><strong>Última atualização:</strong> 2024</p>
+                  
+                  <h4 style="margin-top: 20px;">Funcionalidades:</h4>
+                  <ul>
+                    <li>Chat IA para atendimento personalizado</li>
+                    <li>Gestão completa de cursos</li>
+                    <li>Sistema de feedback</li>
+                    <li>Dashboard com estatísticas</li>
+                    <li>Armazenamento local seguro</li>
+                  </ul>
+                  
+                  <div class="tech-stack">
+                    <h4>Tecnologias utilizadas:</h4>
+                    <div class="tech-icons">
+                      <span class="tech-icon">HTML5</span>
+                      <span class="tech-icon">CSS3</span>
+                      <span class="tech-icon">JavaScript</span>
+                      <span class="tech-icon">IndexedDB</span>
+                      <span class="tech-icon">OpenRouter AI</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- LGPD -->
+        <div id="lgpdPage" class="page">
+          <div class="container">
+            <h1 class="page-title">
+              <i class="fas fa-shield-alt"></i>
+              LGPD - Lei Geral de Proteção de Dados
+            </h1>
+            
+            <div class="lgpd-content">
+              <div class="card">
+                <div class="card-header">
+                  <h3>Política de Privacidade e Proteção de Dados</h3>
+                </div>
+                <div class="card-body">
+                  <h4>Coleta de Dados</h4>
+                  <p>Este sistema coleta apenas dados necessários para seu funcionamento:</p>
+                  <ul>
+                    <li>Informações de usuário (nome, username, senha criptografada)</li>
+                    <li>Informações sobre cursos cadastrados</li>
+                    <li>Feedbacks e avaliações (opcional)</li>
+                    <li>Histórico de conversas com a IA (opcional)</li>
+                  </ul>
+                  
+                  <h4>Armazenamento de Dados</h4>
+                  <p>Todos os dados são armazenados localmente no seu navegador usando IndexedDB. Nenhuma informação é enviada para servidores externos, exceto quando utiliza a API de IA (OpenRouter).</p>
+                  
+                  <h4>Direitos do Usuário</h4>
+                  <p>De acordo com a LGPD, você tem direito a:</p>
+                  <ul>
+                    <li>Acessar seus dados pessoais</li>
+                    <li>Corrigir dados incompletos ou desatualizados</li>
+                    <li>Excluir seus dados a qualquer momento</li>
+                    <li>Revogar consentimento</li>
+                  </ul>
+                  
+                  <h4>Segurança</h4>
+                  <p>Implementamos medidas de segurança para proteger seus dados:</p>
+                  <ul>
+                    <li>Armazenamento local seguro</li>
+                    <li>Senhas criptografadas</li>
+                    <li>Acesso restrito por autenticação</li>
+                    <li>Limpeza de cache opcional</li>
+                  </ul>
+                  
+                  <div class="lgpd-actions">
+                    <button class="btn btn-primary" onclick="exportData()">
+                      <i class="fas fa-download"></i> Exportar Meus Dados
+                    </button>
+                    <button class="btn btn-danger" onclick="deleteMyData()">
+                      <i class="fas fa-trash"></i> Excluir Todos Meus Dados
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
+  <!-- Scripts -->
+  <script src="js/database.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/navigation.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/chat.js"></script>
+  <script src="js/feedback.js"></script>
+  <script src="js/courses.js"></script>
+  <script src="js/main.js"></script>
+  
   <script>
-    // ==============================
-    // BANCO DE DADOS SQLite (IndexedDB)
-    // ==============================
-    
-    let db;
-    let currentUser = null;
-    let currentChatCourse = null;
-    let currentCourseId = null;
-
-    // Inicializar banco de dados
-    function initDatabase() {
-      return new Promise((resolve, reject) => {
-        const request = indexedDB.open('AssistanceSistemaDB', 10); // Versão aumentada
-        
-        request.onerror = (event) => {
-          console.error('Erro ao abrir banco de dados:', event.target.error);
-          reject(event.target.error);
-        };
-        
-        request.onsuccess = (event) => {
-          db = event.target.result;
-          console.log('Banco de dados inicializado com sucesso');
-          resolve(db);
-        };
-        
-        request.onupgradeneeded = (event) => {
-          const db = event.target.result;
-          
-          // Tabela de usuários
-          if (!db.objectStoreNames.contains('users')) {
-            const usersStore = db.createObjectStore('users', { keyPath: 'username' });
-            usersStore.createIndex('nome', 'nome', { unique: false });
-            usersStore.createIndex('role', 'role', { unique: false });
-            usersStore.createIndex('status', 'status', { unique: false });
-          }
-          
-          // Tabela de cursos
-          if (!db.objectStoreNames.contains('courses')) {
-            const coursesStore = db.createObjectStore('courses', { keyPath: 'id' });
-            coursesStore.createIndex('name', 'name', { unique: true });
-          }
-          
-          // Tabela de feedbacks
-          if (!db.objectStoreNames.contains('feedbacks')) {
-            const feedbacksStore = db.createObjectStore('feedbacks', { keyPath: 'id', autoIncrement: true });
-            feedbacksStore.createIndex('userId', 'userId', { unique: false });
-            feedbacksStore.createIndex('rating', 'rating', { unique: false });
-            feedbacksStore.createIndex('date', 'date', { unique: false });
-          }
-          
-          // Tabela de conversas IA
-          if (!db.objectStoreNames.contains('chats')) {
-            const chatsStore = db.createObjectStore('chats', { keyPath: 'id', autoIncrement: true });
-            chatsStore.createIndex('userId', 'userId', { unique: false });
-            chatsStore.createIndex('courseId', 'courseId', { unique: false });
-            chatsStore.createIndex('date', 'date', { unique: false });
-          }
-        };
-      });
-    }
-
-    // ==============================
-    // FUNÇÕES DO BANCO DE DADOS
-    // ==============================
-
-    // Usuários
-    async function getUser(username) {
-      return new Promise((resolve, reject) => {
-        const transaction = db.transaction(['users'], 'readonly');
-        const store = transaction.objectStore('users');
-        const request = store.get(username);
-        
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-      });
-    }
-
-    async function getAllUsers() {
-      return new Promise((resolve, reject) => {
-        const transaction = db.transaction(['users'], 'readonly');
-        const store = transaction.objectStore('users');
-        const request = store.getAll();
-        
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-      });
-    }
-
-    // Cursos
-    async function addCourse(course) {
-      return new Promise((resolve, reject) => {
-        const transaction = db.transaction(['courses'], 'readwrite');
-        const store = transaction.objectStore('courses');
-        const request = store.add(course);
-        
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-      });
-    }
-
-    async function getCourse(id) {
-      return new Promise((resolve, reject) => {
-        const transaction = db.transaction(['courses'], 'readonly');
-        const store = transaction.objectStore('courses');
-        const request = store.get(id);
-        
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-      });
-    }
-
-    async function getAllCourses() {
-      return new Promise((resolve, reject) => {
-        const transaction = db.transaction(['courses'], 'readonly');
-        const store = transaction.objectStore('courses');
-        const request = store.getAll();
-        
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-      });
-    }
-
-    async function updateCourse(id, updates) {
-      return new Promise((resolve, reject) => {
-        const transaction = db.transaction(['courses'], 'readwrite');
-        const store = transaction.objectStore('courses');
-        const request = store.get(id);
-        
-        request.onsuccess = () => {
-          const course = request.result;
-          if (course) {
-            Object.assign(course, updates);
-            const updateRequest = store.put(course);
-            updateRequest.onsuccess = () => resolve(course);
-            updateRequest.onerror = () => reject(updateRequest.error);
-          } else {
-            reject(new Error('Curso não encontrado'));
-          }
-        };
-        
-        request.onerror = () => reject(request.error);
-      });
-    }
-
-    async function deleteCourse(id) {
-      return new Promise((resolve, reject) => {
-        const transaction = db.transaction(['courses'], 'readwrite');
-        const store = transaction.objectStore('courses');
-        const request = store.delete(id);
-        
-        request.onsuccess = () => resolve(true);
-        request.onerror = () => reject(request.error);
-      });
-    }
-
-    // Feedbacks
-    async function addFeedback(feedback) {
-      return new Promise((resolve, reject) => {
-        const transaction = db.transaction(['feedbacks'], 'readwrite');
-        const store = transaction.objectStore('feedbacks');
-        const request = store.add(feedback);
-        
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-      });
-    }
-
-    async function getAllFeedbacks() {
-      return new Promise((resolve, reject) => {
-        const transaction = db.transaction(['feedbacks'], 'readonly');
-        const store = transaction.objectStore('feedbacks');
-        const request = store.getAll();
-        
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-      });
-    }
-
-    // ==============================
-    // FUNÇÕES DE AUTENTICAÇÃO
-    // ==============================
-
-    function logout() {
-      localStorage.removeItem('assistance_logged_user');
-      sessionStorage.clear();
-      window.location.href = 'login.html';
-    }
-
-    function updateUserInterface() {
-      if (!currentUser) return;
-      
-      document.getElementById('userName').textContent = currentUser.nome;
-      document.getElementById('userFullName').textContent = currentUser.nome;
-      document.getElementById('userRole').textContent = 
-        currentUser.role === 'admin' ? 'Administrador' : 'Usuário';
-      
-      const initials = currentUser.nome.split(' ').map(n => n[0]).join('').toUpperCase();
-      document.getElementById('userAvatar').textContent = initials.substring(0, 2);
-      
-      const hour = new Date().getHours();
-      let greeting = '';
-      if (hour < 12) greeting = 'Bom dia';
-      else if (hour < 18) greeting = 'Boa tarde';
-      else greeting = 'Boa noite';
-      
-      document.getElementById('welcomeMessage').innerHTML = 
-        `${greeting}, <strong>${currentUser.nome}</strong>!`;
-    }
-
-    // ==============================
-    // FUNÇÕES DE NAVEGAÇÃO
-    // ==============================
-    
-    function setupNavigation() {
-      const navItems = document.querySelectorAll('.nav-item');
-      const pages = document.querySelectorAll('.page');
-      
-      navItems.forEach(item => {
-        item.addEventListener('click', function() {
-          const pageId = this.getAttribute('data-page');
-          loadPage(pageId, this);
-        });
-      });
-    }
-    
-    function loadPage(pageId, navElement) {
-      const pages = document.querySelectorAll('.page');
-      const navItems = document.querySelectorAll('.nav-item');
-      
-      navItems.forEach(nav => nav.classList.remove('active'));
-      navElement.classList.add('active');
-      
-      pages.forEach(page => page.classList.remove('active'));
-      document.getElementById(`${pageId}Page`).classList.add('active');
-      
-      if (pageId === 'ia') initChatPage();
-      if (pageId === 'feedback') initFeedbackPage();
-      if (pageId === 'courses') initCoursesPage();
-    }
-
-    // ==============================
-    // DASHBOARD
-    // ==============================
-    
-    async function updateDashboardStats() {
-      try {
-        const courses = await getAllCourses();
-        const feedbacks = await getAllFeedbacks();
-        const users = await getAllUsers();
-        
-        document.getElementById('dashboardStats').innerHTML = `
-          <div class="stat-card">
-            <div class="stat-icon">
-              <i class="fas fa-user-circle"></i>
-            </div>
-            <div class="stat-info">
-              <h3>${currentUser.username}</h3>
-              <p>Seu Usuário</p>
-            </div>
-          </div>
-          
-          <div class="stat-card">
-            <div class="stat-icon">
-              <i class="fas fa-book"></i>
-            </div>
-            <div class="stat-info">
-              <h3>${courses.length}</h3>
-              <p>Cursos Disponíveis</p>
-            </div>
-          </div>
-          
-          <div class="stat-card">
-            <div class="stat-icon">
-              <i class="fas fa-comments"></i>
-            </div>
-            <div class="stat-info">
-              <h3>${feedbacks.length}</h3>
-              <p>Feedbacks</p>
-            </div>
-          </div>
-          
-          <div class="stat-card">
-            <div class="stat-icon">
-              <i class="fas fa-users"></i>
-            </div>
-            <div class="stat-info">
-              <h3>${users.length}</h3>
-              <p>Total de Usuários</p>
-            </div>
-          </div>
-        `;
-        
-        document.getElementById('totalCursosCount').textContent = courses.length;
-        document.getElementById('totalFeedbacksCount').textContent = feedbacks.length;
-        
-      } catch (error) {
-        console.error('Erro ao carregar estatísticas:', error);
-      }
-    }
-
-    // ==============================
-    // CHAT IA (permanece igual)
-    // ==============================
-    
-    async function initChatPage() {
-      try {
-        const courses = await getAllCourses();
-        renderCoursesSidebar(courses);
-        setupQuickActions();
-        
-        const userInput = document.getElementById('userInput');
-        if (userInput) {
-          userInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
-          });
-        }
-        
-      } catch (error) {
-        console.error('Erro ao inicializar chat:', error);
-      }
-    }
-
-    function renderCoursesSidebar(courses) {
-      const container = document.getElementById('cursosContainer');
-      container.innerHTML = '';
-      
-      courses.forEach(course => {
-        const courseElement = document.createElement('div');
-        courseElement.className = `curso-item ${currentCourseId === course.id ? 'active' : ''}`;
-        courseElement.innerHTML = `
-          <div class="curso-icon">
-            <i class="${course.icon || 'fas fa-book'}"></i>
-          </div>
-          <div class="curso-info">
-            <h3>${course.name}</h3>
-            <p>${course.duration}</p>
-          </div>
-        `;
-        
-        courseElement.addEventListener('click', () => selectCourse(course));
-        container.appendChild(courseElement);
-      });
-    }
-
-    function selectCourse(course) {
-      currentCourseId = course.id;
-      currentChatCourse = course;
-      
-      document.getElementById('currentCourse').innerHTML = `
-        <i class="fas fa-book"></i>
-        <span>${course.name}</span>
-      `;
-      
-      document.querySelectorAll('.curso-item').forEach(item => {
-        item.classList.remove('active');
-      });
-      event.target.closest('.curso-item').classList.add('active');
-      
-      // Mensagem inicial personalizada para o curso baseada no perfil
-      const differentials = course.differentials?.slice(0, 3).map(d => `• ${d}`).join('\n') || '• Curso de qualidade com foco no mercado';
-      const market = course.market?.[0]?.split('—')[0]?.trim() || 'Amplas oportunidades';
-      
-      addMessage('assistant', `🎯 **PERFEITO! Agora estou focado no ${course.name}!**
-
-**📊 SOBRE ESTE CURSO:**
-${course.description?.substring(0, 250) || 'Curso de qualidade com foco no mercado atual...'}
-
-**⭐ DIFERENCIAIS:**
-${differentials}
-
-**💼 MERCADO:**
-${market}
-
-**🎓 ESPECIALIZAÇÕES DISPONÍVEIS:**
-${course.postgrad?.slice(0, 3).map(p => `• ${p}`).join('\n') || '• Especializações variadas de acordo com o mercado'}
-
-**⏰ HORÁRIOS DISPONÍVEIS:**
-• **Manhã:** 08:10 às 11:00
-• **Noite:** 18:30 às 21:10
-*Nota: Apenas cursos técnicos possuem turmas no período da tarde*
-
-**🔄 MODALIDADES:**
-${course.modalidades?.map(m => `• ${m}`).join('\n') || '• Presencial, Semipresencial, Ao Vivo (Online), EAD 100%'}
-
-**Como posso ajudar você com o ${course.name}?**
-• Quer saber sobre **preços e condições**?
-• Tem dúvidas sobre **horários e modalidades**?
-• Quer entender as **oportunidades de carreira**?
-• Precisa de informações sobre **estágios e eventos**?
-
-Estou aqui para ajudar! 😊`);
-    }
-
-    // NOVA FUNÇÃO: Alternar menu de objeções
-    function toggleObjectionsMenu() {
-      const menu = document.getElementById('objectionsMenu');
-      const icon = document.getElementById('objectionsToggleIcon');
-      const toggle = document.querySelector('.objections-toggle span');
-      
-      if (menu.style.display === 'none') {
-        menu.style.display = 'block';
-        icon.className = 'fas fa-chevron-up';
-        toggle.textContent = 'Ocultar Respostas Rápidas';
-        setTimeout(() => {
-          menu.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 100);
-      } else {
-        menu.style.display = 'none';
-        icon.className = 'fas fa-chevron-down';
-        toggle.textContent = 'Mostrar Respostas Rápidas';
-      }
-    }
-
-    // NOVA FUNÇÃO: Inserir respostas para objeções
-    function insertObjectionResponse(type) {
-      const userInput = document.getElementById('userInput');
-      let response = '';
-      
-      switch(type) {
-        case 'valor':
-          response = `Quanto custa o curso? E quais são as formas de pagamento? Tem bolsa ou financiamento?`;
-          break;
-        case 'tempo':
-          response = `Quais são os horários disponíveis? Tem opção para quem trabalha durante o dia? E quanto tempo dura o curso?`;
-          break;
-        case 'duvida':
-          response = `Quais são os pré-requisitos para fazer este curso? E depois de formado, quais são as oportunidades no mercado?`;
-          break;
-        case 'modalidade':
-          response = `Quais modalidades vocês oferecem? Qual a diferença entre presencial, semipresencial e EAD?`;
-          break;
-      }
-      
-      userInput.value = response;
-      userInput.focus();
-      userInput.style.height = 'auto';
-      userInput.style.height = (userInput.scrollHeight) + 'px';
-    }
-
-    function setupQuickActions() {
-      const actions = [
-        { text: '📞 Criar script para ligação', prompt: 'Crie um script de vendas para ligação telefônica' },
-        { text: '💬 Script para WhatsApp', prompt: 'Elabore um script de vendas para WhatsApp' },
-        { text: '🛡️ Responder objeções', prompt: 'Liste as principais objeções e como respondê-las' },
-        { text: '🎯 Técnicas de fechamento', prompt: 'Sugira técnicas de fechamento para este curso' },
-        { text: '📊 Argumentos de vendas', prompt: 'Quais são os principais argumentos de venda?' },
-        { text: '💰 Falar sobre investimento', prompt: 'Como abordar o assunto do valor do curso?' }
-      ];
-      
-      const quickActions = document.getElementById('quickActions');
-      quickActions.innerHTML = '';
-      
-      actions.forEach(action => {
-        const button = document.createElement('button');
-        button.className = 'quick-action';
-        button.textContent = action.text;
-        button.addEventListener('click', () => {
-          if (currentCourseId) {
-            document.getElementById('userInput').value = action.prompt;
-            document.getElementById('userInput').focus();
-            document.getElementById('userInput').style.height = 'auto';
-            document.getElementById('userInput').style.height = (document.getElementById('userInput').scrollHeight) + 'px';
-          } else {
-            alert('Por favor, selecione um curso primeiro!');
-          }
-        });
-        quickActions.appendChild(button);
-      });
-    }
-
-    function addMessage(role, content, isThinking = false) {
-      const messagesContainer = document.getElementById('messagesContainer');
-      
-      if (isThinking) {
-        const typingElement = document.createElement('div');
-        typingElement.className = 'typing-indicator';
-        typingElement.innerHTML = `
-          <div class="typing-dot"></div>
-          <div class="typing-dot"></div>
-          <div class="typing-dot"></div>
-        `;
-        messagesContainer.appendChild(typingElement);
-        return typingElement;
-      } else {
-        const messageElement = document.createElement('div');
-        messageElement.className = `message ${role}`;
-        messageElement.innerHTML = `
-          <div class="message-header">
-            <i class="fas fa-${role === 'user' ? 'user' : 'robot'}"></i>
-            ${role === 'user' ? 'Você' : 'Dra. Sofia Mendes'}
-          </div>
-          <div class="message-content">${formatMessage(content)}</div>
-        `;
-        messagesContainer.appendChild(messageElement);
-        return messageElement;
-      }
-      
-      setTimeout(() => {
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-      }, 100);
-    }
-
-    function formatMessage(text) {
-      function escapeHtml(str) {
-        return String(str)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;')
-          .replace(/'/g, '&#39;');
-      }
-
-      const escaped = escapeHtml(text);
-      return escaped
-        .replace(/~~(.*?)~~/g, '<del>$1</del>')
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/\n/g, '<br>');
-    }
-
-    async function sendMessage() {
-      const userInput = document.getElementById('userInput');
-      const message = userInput.value.trim();
-      
-      if (!message) return;
-      
-      if (!currentCourseId) {
-        alert('Por favor, selecione um curso primeiro!');
-        return;
-      }
-      
-      addMessage('user', message);
-      userInput.value = '';
-      userInput.style.height = 'auto';
-      
-      const typingEl = addMessage('assistant', '', true);
-      const sendBtn = document.getElementById('sendButton');
-      if (sendBtn) sendBtn.disabled = true;
-
-      try {
-        const apiKey = localStorage.getItem('openrouterApiKey');
-        let responseText;
-        if (apiKey) {
-          responseText = await generateOnlineResponse(message, typingEl);
-        } else {
-          responseText = await generateLocalResponse(message);
-          typingEl?.remove();
-          addMessage('assistant', responseText);
-        }
-        
-        if (currentUser) {
-          await addChat({
-            userId: currentUser.username,
-            courseId: currentCourseId,
-            userMessage: message,
-            aiResponse: responseText,
-            date: new Date().toISOString()
-          });
-        }
-        
-      } catch (error) {
-        console.error('Erro no chat:', error);
-        document.querySelector('.typing-indicator')?.remove();
-        addMessage('assistant', `Desculpe, ocorreu um erro: ${error && error.message ? error.message : error}. Tente novamente.`);
-      } finally {
-        if (sendBtn) sendBtn.disabled = false;
-      }
-    }
-
-    async function addChat(chatData) {
-      return new Promise((resolve, reject) => {
-        const transaction = db.transaction(['chats'], 'readwrite');
-        const store = transaction.objectStore('chats');
-        const request = store.add(chatData);
-        
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-      });
-    }
-
-    // RESPOSTAS BASEADAS NO PERFIL DO CURSO (permanece igual)
-    async function generateLocalResponse(userMessage) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const course = currentChatCourse;
-      const lowerMessage = userMessage.toLowerCase();
-      
-      // Determinar se é curso técnico
-      const isTecnico = course.name.toLowerCase().includes('técnico') || 
-                       course.name.toLowerCase().includes('radiologia') ||
-                       course.name.toLowerCase().includes('analise') ||
-                       course.duration.toLowerCase().includes('meses') ||
-                       course.duration.toLowerCase().includes('anos') && 
-                       parseInt(course.duration) < 4;
-      
-      // Horários baseados no tipo de curso
-      const horariosManha = "• **Manhã:** 08:10 às 11:00";
-      const horariosNoite = "• **Noite:** 18:30 às 21:10";
-      const horariosTarde = isTecnico ? "• **Tarde:** 14:00 às 17:00 (apenas para cursos técnicos)" : "";
-      
-      // Respostas para objeções comuns BASEADAS NO PERFIL DO CURSO
-      if (lowerMessage.includes('custa') || lowerMessage.includes('preço') || lowerMessage.includes('valor')) {
-        return `💰 **INVESTIMENTO NO ${course.name.toUpperCase()}**
-
-Com base no perfil deste curso e seu mercado, aqui estão as informações:
-
-**💼 RETORNO DO INVESTIMENTO:**
-${course.market?.map(m => `• ${m}`).join('\n') || '• Excelentes oportunidades no mercado'}
-
-**🎯 POR QUE VALE A PENA INVESTIR:**
-${course.differentials?.slice(0, 3).map(d => `• ${d}`).join('\n') || '• Qualidade reconhecida no mercado'}
-
-**💳 FORMAS DE PAGAMENTO:**
-✓ Parcelamento em até **48x** no cartão
-✓ Boleto à vista com **10% de desconto**
-✓ Financiamento estudantil (FIES, Pravaler)
-✓ Bolsas de estudo por desempenho
-✓ Convênios empresariais
-
-**📈 EMPREGABILIDADE:**
-Profissionais formados em ${course.name} têm:
-• Alta taxa de empregabilidade em **6 meses**
-• Possibilidade de retorno do investimento em **2-3 anos**
-• Crescimento salarial constante
-
-**🎓 ESPECIALIZAÇÕES QUE AUMENTAM O RETORNO:**
-${course.postgrad?.slice(0, 3).map(p => `• ${p} (aumenta o salário em até 40%)`).join('\n') || '• Especializações disponíveis para aumentar seu mercado'}
-
-Gostaria que eu detalhe mais alguma informação sobre valores específicos?`;
-      }
-      
-      if (lowerMessage.includes('tempo') || lowerMessage.includes('horário') || lowerMessage.includes('dura')) {
-        return `⏰ **HORÁRIOS E FLEXIBILIDADE - ${course.name.toUpperCase()}**
-
-**📅 DURAÇÃO TOTAL:** ${course.duration}
-
-**⏰ HORÁRIOS DISPONÍVEIS:**
-${horariosManha}
-${horariosNoite}
-${horariosTarde}
-
-**🔄 MODALIDADES DISPONÍVEIS:**
-${course.modalidades?.map(m => {
-  if (m === 'Presencial') return `• 🎓 **PRESENCIAL:** Aulas no campus, ${isTecnico ? 'com laboratórios especializados' : 'com biblioteca e recursos completos'}`;
-  if (m === 'Semipresencial') return `• 🔄 **SEMIPRESENCIAL:** Mix de online (60%) e momentos presenciais estratégicos`;
-  if (m === 'Ao Vivo (Online)') return `• 📹 **AO VIVO (ONLINE):** Aulas em tempo real com interação`;
-  if (m === 'EAD 100%') return `• 💻 **EAD 100%:** Total flexibilidade, plataforma 24/7`;
-  return `• ${m}`;
-}).join('\n') || '• Presencial, Semipresencial, Ao Vivo (Online), EAD 100%'}
-
-**🎯 PARA QUEM TRABALHA:**
-Oferecemos turmas especiais:
-• Noturnas (18:30 às 21:10)
-• Flexíveis (Semipresencial e EAD 100%)
-• Aos sábados para algumas especializações
-
-**📚 ESTRUTURA DO CURSO:**
-${course.differentials?.slice(0, 2).map(d => `• ${d}`).join('\n') || '• Estrutura moderna e qualificada'}
-
-**💼 ESTÁGIOS DURANTE O CURSO:**
-${course.internships || 'Estágios supervisionados em empresas parceiras'}
-
-Qual modalidade e horário se encaixa melhor na sua rotina?`;
-      }
-      
-      if (lowerMessage.includes('modalidade') || lowerMessage.includes('ead') || lowerMessage.includes('presencial') || lowerMessage.includes('online') || lowerMessage.includes('semipresencial')) {
-        return `🔄 **MODALIDADES DO ${course.name.toUpperCase()}**
-
-**🎓 1. PRESENCIAL TRADICIONAL**
-• Aulas no campus com infraestrutura completa
-${course.differentials?.find(d => d.toLowerCase().includes('laboratório') || d.toLowerCase().includes('prática')) ? `• ${course.differentials.find(d => d.toLowerCase().includes('laboratório') || d.toLowerCase().includes('prática'))}` : '• Laboratórios e recursos especializados'}
-• Interação direta com professores e colegas
-• Networking máximo durante todo o curso
-• Ideal para quem quer experiência universitária completa
-
-**🔄 2. SEMIPRESENCIAL**
-• **NÃO É HÍBRIDO** - É um mix inteligente
-• 60% online (conteúdo teórico) + 40% presencial (práticas essenciais)
-• Momentos presenciais focados em:
-  ${course.events?.slice(0, 2).map(e => `  ✓ ${e}`).join('\n  ') || '  ✓ Atividades práticas\n  ✓ Laboratórios especializados'}
-• Perfeito para quem trabalha mas quer convivência
-• Economia de tempo com deslocamento
-
-**📹 3. AO VIVO (ONLINE)**
-• Aulas transmitidas em tempo real
-• Interação instantânea via chat e microfone
-• Professores disponíveis durante a transmissão
-• Gravações disponíveis para revisão
-• Ideal para quem precisa de flexibilidade mas quer interação
-
-**💻 4. EAD 100%**
-• Total liberdade de horários
-• Conteúdo disponível 24 horas por dia
-• Plataforma moderna e intuitiva
-• Suporte de tutores especializados
-• Perfeito para quem tem rotina irregular
-
-**🎯 VANTAGENS ESPECÍFICAS PARA ${course.name}:**
-${course.differentials?.slice(0, 2).map(d => `• ${d} (disponível em todas as modalidades)`).join('\n') || '• Qualidade garantida em todas as modalidades'}
-
-**📜 DIPLOMA:** Todas as modalidades conferem o **MESMO DIPLOMA** reconhecido pelo MEC!
-
-Qual modalidade mais combina com seu estilo de vida? 😊`;
-      }
-      
-      if (lowerMessage.includes('mercado') || lowerMessage.includes('trabalho') || lowerMessage.includes('emprego') || lowerMessage.includes('salário')) {
-        return `💼 **MERCADO DE TRABALHO - ${course.name.toUpperCase()}**
-
-**📊 OPORTUNIDADES:**
-${course.market?.map(m => `• ${m}`).join('\n') || '• Ampla variedade de oportunidades no mercado atual'}
-
-**🎯 ÁREAS DE ATUAÇÃO:**
-${course.postgrad?.map(p => `• **${p}:** Área em crescimento com alta demanda`).join('\n') || '• Diversas áreas de especialização disponíveis'}
-
-**🏢 LOCAIS DE ESTÁGIO:**
-${course.internships || '• Empresas parceiras da instituição\n• Órgãos públicos\n• Empresas privadas do setor'}
-
-**⭐ DIFERENCIAIS QUE CONTAM NO MERCADO:**
-${course.differentials?.map(d => `• ${d}`).join('\n') || '• Formação completa e atualizada'}
-
-**📈 TENDÊNCIAS DO MERCADO:**
-• Crescimento contínuo na área
-• Digitalização das profissões
-• Novas oportunidades com tecnologia
-• Especializações valorizadas
-
-**🎓 COMO NOS PREPARAMOS VOCÊ:**
-${course.events?.slice(0, 2).map(e => `• ${e} (preparação para o mercado)`).join('\n') || '• Eventos e visitas técnicas para contato com o mercado'}
-
-Quer saber mais sobre alguma área específica ou oportunidades?`;
-      }
-      
-      if (lowerMessage.includes('diferencial') || lowerMessage.includes('vantagem') || lowerMessage.includes('por que')) {
-        return `⭐ **DIFERENCIAIS DO ${course.name.toUpperCase()}**
-
-**🎯 POR QUE ESCOLHER ESTE CURSO:**
-
-${course.differentials?.map(d => `• **${d.split(':')[0] || d}:** ${d.split(':')[1] || 'Vantagem exclusiva do nosso curso'}`).join('\n\n') || '• Qualidade de ensino reconhecida\n• Corpo docente especializado\n• Infraestrutura completa'}
-
-**🏫 INFRAESTRUTURA:**
-${course.differentials?.filter(d => d.toLowerCase().includes('laboratório') || d.toLowerCase().includes('equipamento')).map(d => `• ${d}`).join('\n') || '• Laboratórios modernos e equipados\n• Bibliotecas atualizadas\n• Espaços de convivência'}
-
-**👨‍🏫 CORPO DOCENTE:**
-• Professores mestres e doutores
-• Profissionais atuantes no mercado
-• Acompanhamento personalizado
-• Experiência prática compartilhada
-
-**🤝 PARCERIAS:**
-${course.internships?.split('\n').slice(0, 3).map(i => `• ${i}`).join('\n') || '• Empresas parceiras para estágios\n• Convênios com instituições\n• Oportunidades de networking'}
-
-**🎓 ESPECIALIZAÇÕES INCLUÍDAS:**
-${course.postgrad?.slice(0, 3).map(p => `• ${p} (preparação para o mercado)`).join('\n') || '• Cursos de extensão gratuitos\n• Certificações intermediárias\n• Preparação para pós-graduação'}
-
-**📅 EVENTOS EXCLUSIVOS:**
-${course.events?.slice(0, 3).map(e => `• ${e} (experiência única)`).join('\n') || '• Semanas acadêmicas\n• Palestras com profissionais\n• Visitas técnicas'}
-
-Estes diferenciais fazem do ${course.name} uma escolha inteligente para seu futuro!`;
-      }
-      
-      // Resposta genérica BASEADA NO PERFIL DO CURSO
-      return `🎓 **${course.name.toUpperCase()} - INFORMAÇÕES COMPLETAS**
-
-**📖 DESCRIÇÃO:**
-${course.description || 'Curso de qualidade com foco no mercado atual'}
-
-**⏰ DURAÇÃO:** ${course.duration}
-
-**⭐ PRINCIPAIS DIFERENCIAIS:**
-${course.differentials?.slice(0, 3).map(d => `• ${d}`).join('\n') || '• Qualidade de ensino\n• Infraestrutura completa\n• Professores especializados'}
-
-**💼 MERCADO DE TRABALHO:**
-${course.market?.slice(0, 2).map(m => `• ${m}`).join('\n') || '• Excelentes oportunidades\n• Crescimento profissional garantido'}
-
-**🎓 ESPECIALIZAÇÕES:**
-${course.postgrad?.slice(0, 2).map(p => `• ${p}`).join('\n') || '• Diversas opções de especialização'}
-
-**📅 EVENTOS E ATIVIDADES:**
-${course.events?.slice(0, 2).map(e => `• ${e}`).join('\n') || '• Eventos acadêmicos regulares\n• Visitas técnicas'}
-
-**🏢 ESTÁGIOS:**
-${course.internships?.split('\n').slice(0, 2).map(i => `• ${i}`).join('\n') || '• Estágios supervisionados\n• Parcerias com empresas'}
-
-**⏰ HORÁRIOS:**
-${horariosManha}
-${horariosNoite}
-${horariosTarde}
-
-**🔄 MODALIDADES:**
-${course.modalidades?.map(m => `• ${m}`).join('\n') || '• Presencial, Semipresencial, Ao Vivo (Online), EAD 100%'}
-
-**Como posso ajudar mais especificamente com o ${course.name}?**
-• Dúvidas sobre **matrícula ou processo seletivo**?
-• Quer saber sobre **bolsas e financiamento**?
-• Precisa de mais detalhes sobre **estágios ou eventos**?
-• Tem interesse em **conhecer nossa estrutura**?`;
-    }
-
-    function getApiConfig() {
-      const key = localStorage.getItem('openrouterApiKey');
-      const model = localStorage.getItem('aiModel') || 'mistralai/mistral-7b-instruct:free';
-      
-      // NOVA CONFIGURAÇÃO DO SYSTEM PROMPT COM INFORMAÇÕES ATUALIZADAS
-      const system = `Você é a Dra. Sofia Mendes, especialista em carreiras da Assistance SM com 8 anos de experiência. Sua personalidade é empática, motivadora e profissional. Você ajuda pessoas a encontrarem o curso perfeito para transformar suas carreiras.
-
-**INFORMAÇÕES IMPORTANTES SOBRE NOSSA INSTITUIÇÃO:**
-
-**HORÁRIOS DISPONÍVEIS:**
-• Manhã: 08:10 às 11:00
-• Noite: 18:30 às 21:10
-• Apenas cursos técnicos possuem turmas no período da tarde
-
-**MODALIDADES DE ENSINO (NÃO SÃO HÍBRIDAS):**
-1. 🎓 PRESENCIAL: Aulas tradicionais no campus
-2. 🔄 SEMIPRESENCIAL: Mix de 60% online + 40% presencial (NÃO É HÍBRIDO)
-3. 📹 AO VIVO (ONLINE): Aulas em tempo real via internet
-4. 💻 EAD 100%: Total flexibilidade de horários
-
-**INFORMAÇÕES GERAIS:**
-• Todos os cursos são reconhecidos pelo MEC
-• Temos bolsas de estudo e financiamento disponível
-• Foco total na empregabilidade dos alunos
-• Corpo docente qualificado com experiência de mercado
-
-**SEU ESTILO DE COMUNICAÇÃO:**
-• Use emojis moderadamente para humanizar
-• Seja clara, direta e inspiradora
-• Sempre baseie suas respostas no perfil específico do curso
-• Use os dados do curso (diferenciais, mercado, especializações) para personalizar respostas
-• Sempre mencione os horários corretos (manhã e noite)
-• Explique que semipresencial NÃO é híbrido - é um mix inteligente
-• Para cursos técnicos, mencione que também têm turmas à tarde
-• Foque em soluções, não apenas em vendas
-• Seja honesta sobre limitações quando necessário`;
-
-      const temperature = parseFloat(localStorage.getItem('aiTemperature') || '0.7');
-      const maxTokens = parseInt(localStorage.getItem('maxTokens') || '500', 10);
-      return { key, model, system, temperature, maxTokens };
-    }
-
-    async function generateOnlineResponse(userMessage, typingElement) {
-      const cfg = getApiConfig();
-      if (!cfg.key) throw new Error('API key não configurada');
-
-      // Construir contexto rico do curso para a IA
-      const courseContext = `CURSO SELECIONADO: ${currentChatCourse?.name || 'N/A'}
-DURAÇÃO: ${currentChatCourse?.duration || 'N/A'}
-DESCRIÇÃO: ${currentChatCourse?.description?.substring(0, 300) || 'Curso de qualidade'}
-DIFERENCIAIS: ${currentChatCourse?.differentials?.join('; ') || 'Sem diferenciais cadastrados'}
-MERCADO: ${currentChatCourse?.market?.join('; ') || 'Mercado amplo'}
-ESPECIALIZAÇÕES: ${currentChatCourse?.postgrad?.join(', ') || 'Não informado'}
-EVENTOS: ${currentChatCourse?.events?.join(', ') || 'Não informado'}
-ESTÁGIOS: ${currentChatCourse?.internships || 'Não informado'}
-MODALIDADES: ${currentChatCourse?.modalidades?.join(', ') || 'Presencial, Semipresencial, Ao Vivo (Online), EAD 100%'}
-
-HORÁRIOS DISPONÍVEIS:
-- Manhã: 08:10 às 11:00
-- Noite: 18:30 às 21:10
-- Apenas cursos técnicos têm turmas à tarde
-
-IMPORTANTE: Semipresencial NÃO é híbrido - é um mix inteligente de 60% online + 40% presencial.`;
-
-      const messages = [
-        { role: 'system', content: cfg.system },
-        { role: 'user', content: `${courseContext}\n\nPERGUNTA DO CLIENTE: ${userMessage}\n\nINSTRUÇÃO: Baseie sua resposta EXCLUSIVAMENTE nas informações do curso acima e nas regras da instituição. Seja específico sobre horários, modalidades e características deste curso.` }
-      ];
-
-      typingElement?.remove();
-      const assistantEl = addMessage('assistant', '');
-      const contentEl = assistantEl.querySelector('.message-content');
-
-      const endpoints = [
-        'https://api.openrouter.ai/v1/chat/completions',
-        'https://openrouter.ai/v1/chat/completions',
-        'https://openrouter.ai/api/v1/chat/completions'
-      ];
-
-      let finalText = '';
-
-      for (const url of endpoints) {
-        try {
-          const controller = new AbortController();
-          const res = await fetch(url, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'text/event-stream',
-              'Authorization': `Bearer ${cfg.key}`
-            },
-            body: JSON.stringify({ model: cfg.model, messages, temperature: cfg.temperature, max_tokens: cfg.maxTokens, stream: true }),
-            signal: controller.signal
-          });
-
-          if (!res.ok) {
-            continue;
-          }
-
-          if (!res.body) {
-            continue;
-          }
-
-          const reader = res.body.getReader();
-          const decoder = new TextDecoder();
-          let done = false;
-          let buffer = '';
-
-          while (!done) {
-            const { value, done: d } = await reader.read();
-            done = d;
-            if (!value) continue;
-
-            buffer += decoder.decode(value, { stream: true });
-            let parts = buffer.split('\n\n');
-            buffer = parts.pop();
-
-            for (const part of parts) {
-              const lines = part.split('\n').map(l => l.trim());
-              for (const line of lines) {
-                if (!line) continue;
-                if (!line.startsWith('data:')) continue;
-
-                const payload = line.replace(/^data:\s?/, '');
-                if (payload === '[DONE]') {
-                  done = true;
-                  break;
-                }
-
-                try {
-                  const json = JSON.parse(payload);
-                  const delta = json.choices?.[0]?.delta?.content;
-                  if (delta) {
-                    finalText += delta;
-                    contentEl.innerHTML = formatMessage(finalText);
-                    const messagesContainer = document.getElementById('messagesContainer');
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                  }
-                  if (json.choices?.[0]?.message?.content) {
-                    finalText = json.choices[0].message.content;
-                    contentEl.innerHTML = formatMessage(finalText);
-                    const messagesContainer = document.getElementById('messagesContainer');
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                  }
-                } catch (err) {
-                  console.debug('Não foi possível parsear payload SSE:', err);
-                }
-              }
-              if (done) break;
-            }
-            if (done) break;
-          }
-
-          if (finalText.trim()) return finalText.trim();
-          if (contentEl.textContent && contentEl.textContent.trim()) return contentEl.textContent.trim();
-          continue;
-
-        } catch (err) {
-          console.warn('Stream endpoint falhou:', url, err);
-          continue;
-        }
-      }
-
-      try {
-        const fallbackUrl = 'https://api.openrouter.ai/v1/chat/completions';
-        const r = await fetch(fallbackUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${cfg.key}`
-          },
-          body: JSON.stringify({ model: cfg.model, messages, temperature: cfg.temperature, max_tokens: cfg.maxTokens })
-        });
-
-        if (!r.ok) throw new Error('Resposta da API não OK');
-        const data = await r.json();
-        const result = data.choices?.[0]?.message?.content || data.choices?.[0]?.text || '';
-        contentEl.innerHTML = formatMessage(result);
-        return result;
-      } catch (err) {
-        console.warn('Fallback não-streaming falhou:', err);
-        addMessage('assistant', '(Atenção) Falha ao conectar à API — usando resposta local.');
-        const local = await generateLocalResponse(userMessage);
-        contentEl.innerHTML = formatMessage(local);
-        return local;
-      }
-    }
-
-    function handleKeyPress(event) {
-      if (event.key === 'Enter' && !event.shiftKey) {
-        event.preventDefault();
-        sendMessage();
-      }
-    }
-
-    // ==============================
-    // SISTEMA DE FEEDBACK (permanece igual)
-    // ==============================
-    
-    let selectedRating = 0;
-    let ratingTexts = {
-      1: "Péssimo",
-      2: "Ruim", 
-      3: "Regular",
-      4: "Bom",
-      5: "Excelente"
-    };
-
-    async function initFeedbackPage() {
-      setupRatingStars();
-      loadFeedbackStats();
-      loadFeedbacks();
-    }
-
-    function setupRatingStars() {
-      const stars = document.querySelectorAll('.star');
-      const ratingText = document.getElementById('ratingText');
-      
-      stars.forEach(star => {
-        star.addEventListener('mouseover', () => {
-          const rating = parseInt(star.getAttribute('data-rating'));
-          ratingText.textContent = ratingTexts[rating];
-          
-          stars.forEach(s => {
-            const sRating = parseInt(s.getAttribute('data-rating'));
-            s.textContent = sRating <= rating ? '★' : '☆';
-          });
-        });
-        
-        star.addEventListener('mouseout', () => {
-          stars.forEach(s => {
-            const sRating = parseInt(s.getAttribute('data-rating'));
-            s.textContent = sRating <= selectedRating ? '★' : '☆';
-          });
-          ratingText.textContent = selectedRating > 0 ? ratingTexts[selectedRating] : "Clique nas estrelas para avaliar";
-        });
-        
-        star.addEventListener('click', () => {
-          selectedRating = parseInt(star.getAttribute('data-rating'));
-          
-          stars.forEach(s => {
-            const sRating = parseInt(s.getAttribute('data-rating'));
-            s.classList.toggle('active', sRating <= selectedRating);
-            s.textContent = sRating <= selectedRating ? '★' : '☆';
-          });
-          
-          ratingText.textContent = ratingTexts[selectedRating];
-          ratingText.style.color = '#ffc107';
-          ratingText.style.fontWeight = '600';
-        });
-      });
-    }
-
-    async function loadFeedbackStats() {
-      try {
-        const feedbacks = await getAllFeedbacks();
-        const container = document.getElementById('feedbackStats');
-        
-        if (feedbacks.length === 0) {
-          container.innerHTML = `
-            <div class="stat-item">
-              <div class="stat-value">0</div>
-              <div class="stat-label">Avaliações</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value">0.0</div>
-              <div class="stat-label">Média</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value">0</div>
-              <div class="stat-label">Hoje</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value">0%</div>
-              <div class="stat-label">Positivas</div>
-            </div>
-          `;
-          return;
-        }
-        
-        const total = feedbacks.length;
-        const avgRating = feedbacks.reduce((sum, f) => sum + f.rating, 0) / total;
-        const today = new Date().toISOString().split('T')[0];
-        const todayCount = feedbacks.filter(f => f.date.split('T')[0] === today).length;
-        const positiveCount = feedbacks.filter(f => f.rating >= 4).length;
-        const positivePercentage = Math.round((positiveCount / total) * 100);
-        
-        container.innerHTML = `
-          <div class="stat-item">
-            <div class="stat-value">${total}</div>
-            <div class="stat-label">Avaliações</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value">${avgRating.toFixed(1)}</div>
-            <div class="stat-label">Média</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value">${todayCount}</div>
-            <div class="stat-label">Hoje</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value">${positivePercentage}%</div>
-            <div class="stat-label">Positivas</div>
-          </div>
-        `;
-        
-      } catch (error) {
-        console.error('Erro ao carregar estatísticas de feedback:', error);
-      }
-    }
-
-    async function submitFeedback() {
-      if (selectedRating === 0) {
-        alert('Por favor, selecione uma avaliação com as estrelas.');
-        return;
-      }
-      
-      const text = document.getElementById('feedbackText').value.trim();
-      if (!text) {
-        alert('Por favor, digite seu comentário.');
-        return;
-      }
-      
-      try {
-        await addFeedback({
-          userId: currentUser.username,
-          userName: currentUser.nome,
-          rating: selectedRating,
-          text: text,
-          date: new Date().toISOString()
-        });
-        
-        const notification = document.createElement('div');
-        notification.className = 'alert alert-success';
-        notification.innerHTML = `<i class="fas fa-check-circle"></i> Feedback enviado com sucesso! Obrigado por sua contribuição.`;
-        document.querySelector('.feedback-form-container').insertBefore(notification, document.querySelector('.feedback-form-container button'));
-        
-        setTimeout(() => notification.remove(), 3000);
-        
-        document.getElementById('feedbackText').value = '';
-        selectedRating = 0;
-        document.querySelectorAll('.star').forEach(star => {
-          star.classList.remove('active');
-          star.textContent = '☆';
-        });
-        
-        document.getElementById('ratingText').textContent = 'Clique nas estrelas para avaliar';
-        document.getElementById('ratingText').style.color = '';
-        document.getElementById('ratingText').style.fontWeight = '';
-        
-        loadFeedbacks();
-        loadFeedbackStats();
-        
-      } catch (error) {
-        console.error('Erro ao enviar feedback:', error);
-        alert('Erro ao enviar feedback. Tente novamente.');
-      }
-    }
-
-    async function loadFeedbacks() {
-      try {
-        const feedbacks = await getAllFeedbacks();
-        const container = document.getElementById('feedbackList');
-        const sortValue = document.getElementById('feedbackSort')?.value || 'newest';
-        
-        if (feedbacks.length === 0) {
-          container.innerHTML = `
-            <div class="empty-feedback">
-              <i class="far fa-comment-dots"></i>
-              <h3>Nenhum feedback ainda</h3>
-              <p>Seja o primeiro a avaliar o sistema!</p>
-            </div>
-          `;
-          return;
-        }
-        
-        let sortedFeedbacks = [...feedbacks];
-        switch(sortValue) {
-          case 'newest':
-            sortedFeedbacks.sort((a, b) => new Date(b.date) - new Date(a.date));
-            break;
-          case 'oldest':
-            sortedFeedbacks.sort((a, b) => new Date(a.date) - new Date(b.date));
-            break;
-          case 'highest':
-            sortedFeedbacks.sort((a, b) => b.rating - a.rating);
-            break;
-          case 'lowest':
-            sortedFeedbacks.sort((a, b) => a.rating - b.rating);
-            break;
-        }
-        
-        container.innerHTML = sortedFeedbacks.map(feedback => {
-          const date = new Date(feedback.date);
-          const initials = feedback.userName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-          
-          return `
-            <div class="feedback-item">
-              <div class="feedback-item-header">
-                <div class="feedback-user-info">
-                  <div class="feedback-user-avatar">${initials}</div>
-                  <div class="feedback-user-details">
-                    <h4>${feedback.userName}</h4>
-                    <div class="feedback-rating-stars">
-                      ${'★'.repeat(feedback.rating)}${'☆'.repeat(5 - feedback.rating)}
-                    </div>
-                  </div>
-                </div>
-                <div class="feedback-date">
-                  ${date.toLocaleDateString('pt-BR')} ${date.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}
-                </div>
-              </div>
-              <div class="feedback-content">${feedback.text}</div>
-            </div>
-          `;
-        }).join('');
-        
-      } catch (error) {
-        console.error('Erro ao carregar feedbacks:', error);
-        container.innerHTML = `
-          <div class="empty-feedback">
-            <i class="fas fa-exclamation-triangle"></i>
-            <h3>Erro ao carregar feedbacks</h3>
-            <p>Tente recarregar a página</p>
-          </div>
-        `;
-      }
-    }
-
-    // ==============================
-    // GESTÃO DE CURSOS (MODIFICADO - VISÍVEL PARA TODOS)
-    // ==============================
-    
-    async function initCoursesPage() {
-      await loadCourses();
-      await updateCoursesCount();
-    }
-
-    // Atualizar contador de cursos
-    async function updateCoursesCount() {
-      try {
-        const courses = await getAllCourses();
-        const countElement = document.getElementById('totalCoursesCount');
-        if (countElement) {
-          countElement.textContent = courses.length;
-        }
-      } catch (error) {
-        console.error('Erro ao atualizar contador de cursos:', error);
-      }
-    }
-
-    async function loadCourses() {
-      try {
-        const courses = await getAllCourses();
-        const container = document.getElementById('coursesList');
-        
-        if (courses.length === 0) {
-          container.innerHTML = `
-            <div class="no-courses">
-              <i class="fas fa-book-open"></i>
-              <h3>Nenhum curso cadastrado</h3>
-              <p>Clique em "Adicionar Novo Curso" para começar!</p>
-            </div>
-          `;
-          return;
-        }
-        
-        container.innerHTML = `
-          <table class="courses-table">
-            <thead>
-              <tr>
-                <th>Curso</th>
-                <th>Duração</th>
-                <th>Diferenciais</th>
-                <th>Mercado</th>
-                <th>Modalidades</th>
-                <th style="text-align: right;">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${courses.map(course => {
-                const differentials = course.differentials?.slice(0, 2).join(', ') || 'Sem diferenciais';
-                const market = course.market?.[0]?.split(':')[0] || 'Não informado';
-                const modalidades = course.modalidades?.slice(0, 2).join(', ') || 'Não informado';
-                
-                return `
-                  <tr>
-                    <td>
-                      <div class="course-name-cell">
-                        <div class="course-icon-small">
-                          <i class="${course.icon || 'fas fa-book'}"></i>
-                        </div>
-                        <div class="course-details">
-                          <div class="course-name">${course.name}</div>
-                          <div class="course-meta">
-                            <i class="far fa-calendar"></i> Criado em ${new Date(course.createdAt).toLocaleDateString('pt-BR')}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td><span class="badge badge-warning">${course.duration}</span></td>
-                    <td>${differentials}</td>
-                    <td>${market}</td>
-                    <td>${modalidades}</td>
-                    <td>
-                      <div class="course-actions">
-                        <button class="btn btn-sm btn-info" onclick="viewCourseDetails('${course.id}')">
-                          <i class="fas fa-eye"></i> Ver
-                        </button>
-                        <button class="btn btn-sm btn-primary" onclick="editCourse('${course.id}')">
-                          <i class="fas fa-edit"></i> Editar
-                        </button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteCoursePrompt('${course.id}')">
-                          <i class="fas fa-trash"></i> Excluir
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                `;
-              }).join('')}
-            </tbody>
-          </table>
-        `;
-        
-      } catch (error) {
-        console.error('Erro ao carregar cursos:', error);
-        container.innerHTML = `
-          <div class="alert alert-danger">
-            <i class="fas fa-exclamation-triangle"></i>
-            Erro ao carregar cursos. Tente recarregar a página.
-          </div>
-        `;
-      }
-    }
-
-    // NOVA FUNÇÃO: Visualizar detalhes do curso
-    async function viewCourseDetails(courseId) {
-      try {
-        const course = await getCourse(courseId);
-        
-        if (!course) {
-          alert('Curso não encontrado.');
-          return;
-        }
-        
-        const modalidades = course.modalidades?.join(', ') || 'Presencial, Semipresencial, Ao Vivo (Online), EAD 100%';
-        
-        const details = `
-📚 **${course.name}**
-⏰ **Duração:** ${course.duration}
-🎯 **Diferenciais:**
-${course.differentials?.map(d => `• ${d}`).join('\n') || '• Sem diferenciais cadastrados'}
-💼 **Mercado de Trabalho:**
-${course.market?.map(m => `• ${m}`).join('\n') || '• Não informado'}
-🎓 **Especializações:**
-${course.postgrad?.map(p => `• ${p}`).join('\n') || '• Não informado'}
-📅 **Eventos:**
-${course.events?.map(e => `• ${e}`).join('\n') || '• Não informado'}
-👨‍💼 **Estágios:**
-${course.internships || 'Não informado'}
-🔄 **Modalidades:**
-${modalidades.split(', ').map(m => `• ${m}`).join('\n')}
-        `;
-        
-        alert(details);
-        
-      } catch (error) {
-        console.error('Erro ao carregar detalhes do curso:', error);
-        alert('Erro ao carregar detalhes do curso.');
-      }
-    }
-
-    // Funções para mostrar/esconder formulário
-    function showAddCourseForm() {
-      // TODOS OS USUÁRIOS PODEM ADICIONAR CURSOS
-      document.getElementById('courseFormContainer').style.display = 'block';
-      resetCourseForm();
-      document.getElementById('courseFormContainer').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function hideCourseForm() {
-      document.getElementById('courseFormContainer').style.display = 'none';
-    }
-
-    async function saveCourse() {
-      // TODOS OS USUÁRIOS PODEM SALVAR CURSOS
-      
-      const id = document.getElementById('courseId').value;
-      const name = document.getElementById('courseName').value.trim();
-      const duration = document.getElementById('courseDuration').value.trim();
-      const icon = document.getElementById('courseIcon').value.trim();
-      const description = document.getElementById('courseDescription').value.trim();
-      
-      if (!name || !duration || !description) {
-        alert('Por favor, preencha os campos obrigatórios (Nome, Duração, Descrição).');
-        return;
-      }
-      
-      const differentials = document.getElementById('courseDifferentials').value
-        .split('\n')
-        .map(line => line.trim())
-        .filter(line => line.length > 0);
-      
-      const market = document.getElementById('courseMarket').value
-        .split('\n')
-        .map(line => line.trim())
-        .filter(line => line.length > 0);
-      
-      const postgrad = document.getElementById('coursePostgrad').value
-        .split('\n')
-        .map(line => line.trim())
-        .filter(line => line.length > 0);
-      
-      const events = document.getElementById('courseEvents').value
-        .split('\n')
-        .map(line => line.trim())
-        .filter(line => line.length > 0);
-      
-      const internships = document.getElementById('courseInternships').value.trim();
-      
-      // Obter modalidades selecionadas
-      const modalidades = [];
-      if (document.getElementById('modalidadePresencial').checked) modalidades.push('Presencial');
-      if (document.getElementById('modalidadeSemipresencial').checked) modalidades.push('Semipresencial');
-      if (document.getElementById('modalidadeOnline').checked) modalidades.push('Ao Vivo (Online)');
-      if (document.getElementById('modalidadeEAD').checked) modalidades.push('EAD 100%');
-      
-      const courseData = {
-        id: id || Date.now().toString(),
-        name,
-        duration,
-        icon: icon || 'fas fa-book',
-        description,
-        differentials,
-        market,
-        postgrad,
-        events,
-        internships,
-        modalidades,
-        createdAt: id ? courseData.createdAt : new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      
-      try {
-        if (id) {
-          // Para edição, manter a data de criação original
-          const existingCourse = await getCourse(id);
-          if (existingCourse) {
-            courseData.createdAt = existingCourse.createdAt;
-          }
-          await updateCourse(id, courseData);
-        } else {
-          await addCourse(courseData);
-        }
-        
-        const notification = document.createElement('div');
-        notification.className = 'alert alert-success';
-        notification.innerHTML = `<i class="fas fa-check-circle"></i> Curso ${id ? 'atualizado' : 'adicionado'} com sucesso!`;
-        document.querySelector('.course-form-container').insertBefore(notification, document.querySelector('.course-form-container .form-actions'));
-        
-        setTimeout(() => notification.remove(), 3000);
-        
-        resetCourseForm();
-        hideCourseForm();
-        loadCourses();
-        updateCoursesCount();
-        
-      } catch (error) {
-        console.error('Erro ao salvar curso:', error);
-        alert('Erro ao salvar curso. Tente novamente.');
-      }
-    }
-
-    async function editCourse(courseId) {
-      // TODOS OS USUÁRIOS PODEM EDITAR CURSOS
-      
-      try {
-        const course = await getCourse(courseId);
-        
-        if (!course) {
-          alert('Curso não encontrado.');
-          return;
-        }
-        
-        document.getElementById('courseId').value = course.id;
-        document.getElementById('courseName').value = course.name;
-        document.getElementById('courseDuration').value = course.duration;
-        document.getElementById('courseIcon').value = course.icon;
-        document.getElementById('courseDescription').value = course.description;
-        document.getElementById('courseDifferentials').value = course.differentials?.join('\n') || '';
-        document.getElementById('courseMarket').value = course.market?.join('\n') || '';
-        document.getElementById('coursePostgrad').value = course.postgrad?.join('\n') || '';
-        document.getElementById('courseEvents').value = course.events?.join('\n') || '';
-        document.getElementById('courseInternships').value = course.internships || '';
-        
-        // Preencher modalidades
-        if (course.modalidades) {
-          document.getElementById('modalidadePresencial').checked = course.modalidades.includes('Presencial');
-          document.getElementById('modalidadeSemipresencial').checked = course.modalidades.includes('Semipresencial');
-          document.getElementById('modalidadeOnline').checked = course.modalidades.includes('Ao Vivo (Online)');
-          document.getElementById('modalidadeEAD').checked = course.modalidades.includes('EAD 100%');
-        }
-        
-        document.getElementById('courseFormTitle').textContent = 'Editar Curso';
-        document.getElementById('saveCourseBtn').innerHTML = '<i class="fas fa-save"></i> Atualizar Curso';
-        document.getElementById('cancelCourseBtn').style.display = 'inline-flex';
-        
-        // Mostrar formulário se estiver escondido
-        document.getElementById('courseFormContainer').style.display = 'block';
-        document.getElementById('courseFormContainer').scrollIntoView({ behavior: 'smooth' });
-        
-      } catch (error) {
-        console.error('Erro ao carregar curso:', error);
-        alert('Erro ao carregar curso para edição.');
-      }
-    }
-
-    function resetCourseForm() {
-      document.getElementById('courseForm').reset();
-      document.getElementById('courseId').value = '';
-      document.getElementById('courseFormTitle').textContent = 'Adicionar Novo Curso';
-      document.getElementById('saveCourseBtn').innerHTML = '<i class="fas fa-save"></i> Salvar Curso';
-      document.getElementById('cancelCourseBtn').style.display = 'none';
-      
-      // Resetar checkboxes de modalidades
-      document.getElementById('modalidadePresencial').checked = true;
-      document.getElementById('modalidadeSemipresencial').checked = true;
-      document.getElementById('modalidadeOnline').checked = true;
-      document.getElementById('modalidadeEAD').checked = true;
-    }
-
-    async function deleteCoursePrompt(courseId) {
-      // TODOS OS USUÁRIOS PODEM EXCLUIR CURSOS
-      
-      if (!confirm('Tem certeza que deseja excluir este curso? Esta ação não pode ser desfeita.')) {
-        return;
-      }
-      
-      try {
-        const course = await getCourse(courseId);
-        await deleteCourse(courseId);
-        
-        const notification = document.createElement('div');
-        notification.className = 'alert alert-success';
-        notification.innerHTML = `<i class="fas fa-check-circle"></i> Curso "${course.name}" excluído com sucesso!`;
-        document.querySelector('.courses-table-container').insertBefore(notification, document.querySelector('#coursesList'));
-        
-        setTimeout(() => notification.remove(), 3000);
-        
-        loadCourses();
-        updateCoursesCount();
-        
-      } catch (error) {
-        console.error('Erro ao excluir curso:', error);
-        alert('Erro ao excluir curso. Tente novamente.');
-      }
-    }
-
-    // ==============================
-    // FUNÇÕES AUXILIARES
-    // ==============================
-
+    // Funções globais
     function clearCache() {
       if (!confirm('Tem certeza que deseja limpar o cache do navegador?')) {
         return;
@@ -1788,286 +269,20 @@ ${modalidades.split(', ').map(m => `• ${m}`).join('\n')}
       }
     }
 
-    // ==============================
-    // INICIALIZAÇÃO DO SISTEMA
-    // ==============================
+    function exportData() {
+      alert('Funcionalidade de exportação em desenvolvimento.');
+    }
 
-    async function initializeSystem() {
-      try {
-        // Verificar autenticação
-        const loggedUser = localStorage.getItem('assistance_logged_user');
-        if (loggedUser) {
-          try { 
-            currentUser = JSON.parse(loggedUser); 
-          } catch(e) { 
-            currentUser = { username: 'guest', nome: 'Visitante', role: 'user' };
-          }
-        } else {
-          currentUser = { username: 'guest', nome: 'Visitante', role: 'user' };
-        }
-        
-        // Inicializar banco de dados
-        await initDatabase();
-        
-        // Carregar dados iniciais se o banco estiver vazio
-        const users = await getAllUsers();
-        if (users.length === 0) {
-          // Adicionar usuários iniciais
-          const initialUsers = [
-            {
-              username: 'admin',
-              nome: 'Administrador',
-              senha: 'admin123',
-              role: 'admin',
-              status: 'active',
-              firstLogin: false,
-              lastAccess: null
-            },
-            {
-              username: 'lisandra',
-              nome: 'Lisandra',
-              senha: 'lisandra123',
-              role: 'user',
-              status: 'active',
-              firstLogin: true,
-              lastAccess: null
-            }
-          ];
-          
-          for (const user of initialUsers) {
-            await addUser(user);
-          }
-          
-          // ADICIONAR TODOS OS CURSOS DO SELETOR
-          await loadAllCoursesFromSelector();
-          
-          console.log('Dados iniciais carregados com sucesso');
-        }
-        
-        // Atualizar interface do usuário
-        updateUserInterface();
-        
-        // Configurar navegação
-        setupNavigation();
-        
-        // Atualizar dashboard
-        updateDashboardStats();
-        updateApiStatus();
-        
-        // Mostrar sistema
-        document.getElementById('app').style.display = 'flex';
-        
-        console.log('Sistema inicializado com sucesso');
-        
-      } catch (error) {
-        console.error('Erro ao inicializar sistema:', error);
-        alert('Erro ao inicializar sistema. Por favor, recarregue a página.');
+    function deleteMyData() {
+      if (!confirm('ATENÇÃO: Esta ação excluirá TODOS os seus dados do sistema. Tem certeza?')) {
+        return;
       }
+      alert('Funcionalidade de exclusão em desenvolvimento.');
     }
 
-    // Função para adicionar todos os cursos do seletor
-    async function loadAllCoursesFromSelector() {
-      const cursosSeletor = [
-        {
-          id: '1',
-          name: 'Direito',
-          duration: '5 anos (bacharelado)',
-          icon: 'fas fa-balance-scale',
-          description: 'O curso de Direito é um curso de graduação bacharelado com duração de 5 anos que tem como missão formar profissionais com base teórica sólida, visão crítica e responsabilidade social. O curso possui nota 4 na faculdade Estácio Macapá e se destaca pelo corpo docente altamente qualificado, e laboratório Núcleo de Práticas Jurídicas que é referência em atendimento gratuita para a comunidade, integrando teoria e prática e incentivo a empregabilidade com parcerias institucionais estratégicas.',
-          differentials: ['Corpo docente qualificado', 'NPJ referência em atendimento gratuito', 'Parcerias institucionais para empregabilidade'],
-          market: ['Advogado Júnior — R$ 2.500 - R$ 4.600', 'Advogado Pleno — R$ 6.000 - R$ 12.000', 'Advogado Sênior — R$ 8.000 - R$ 22.000', 'Técnico/Analista Judiciário — R$ 6.000 - R$ 14.000', 'Juiz Substituto — R$ 28.000'],
-          postgrad: ['Direito de Família', 'Direito Ambiental', 'Direito Penal e Processual Penal', 'Direito Internacional'],
-          events: ['Aula inaugural', 'Cerimônia do Vade Mecum', 'Semana Acadêmica', 'Palestras e visitas técnicas'],
-          internships: 'Estágio supervisionado em NPJ; estágios em órgãos públicos e escritórios parceiros.',
-          modalidades: ['Presencial', 'Semipresencial', 'Ao Vivo (Online)', 'EAD 100%'],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        },
-        {
-          id: '2',
-          name: 'Enfermagem',
-          duration: '~5 anos',
-          icon: 'fas fa-user-nurse',
-          description: 'O curso de Enfermagem da Estácio tem duração média de cinco anos e forma profissionais para atuar com competência técnica e sensibilidade humana no cuidado à saúde. Durante a graduação, os alunos participam de estágios supervisionados em hospitais e unidades de saúde, além de projetos de extensão voltados à comunidade. A formação prepara o estudante para atender às demandas do mercado, promovendo o bem-estar e a qualidade de vida em diferentes contextos da atenção à saúde.',
-          differentials: ['Estágios supervisionados desde cedo', 'Laboratórios de Anatomia e Semiologia', 'Ligas acadêmicas e semanas temáticas'],
-          market: ['Enfermeiro de Maternidade — R$4.500 - R$6.000', 'Enfermeiro em Clínicas/Hospitais — R$5.000 - R$7.000', 'Enfermeiro de Emergência/UTI — R$5.000 - R$7.000'],
-          postgrad: ['Obstetrícia', 'Terapia Intensiva', 'Saúde Pública'],
-          events: ['Cerimônia do Jaleco', 'Semana da Enfermagem', 'Estácio Anatomy'],
-          internships: 'Estágios supervisionados em hospitais, UBS e centros de referência; atividades práticas em laboratórios.',
-          modalidades: ['Presencial', 'Semipresencial', 'Ao Vivo (Online)', 'EAD 100%'],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        },
-        {
-          id: '3',
-          name: 'Psicologia',
-          duration: '~5 anos (bacharelado)',
-          icon: 'fas fa-brain',
-          description: 'O curso de Psicologia da Estácio tem duração média de cinco anos e prepara profissionais bacharéis para compreender e intervir nos processos mentais, emocionais e comportamentais, contribuindo para o bem-estar psicológico e a saúde mental na sociedade. Ao longo da graduação, os alunos participam de estágios supervisionados no SEP e em outros espaços, além de projetos de extensão voltados à comunidade.',
-          differentials: ['Serviço Escola de Psicologia (SEP)', 'Simulações de atendimentos clínicos', 'Projetos de extensão comunitária'],
-          market: ['Psicólogo Clínico — R$ 5.251,54', 'Psicólogo Jurídico — R$ 6.976,92', 'Neuropsicólogo — R$ 5.642,59', 'Psicólogo Organizacional — R$ 3.976,15'],
-          postgrad: ['Neurociência', 'Gestão de Clínicas', 'Psicopedagogia'],
-          events: ['Cerimônia do Código de Ética', 'Jornada SEP', 'Simulações e visitas técnicas'],
-          internships: 'Estágios teóricos e práticos no SEP e em serviços parceiros.',
-          modalidades: ['Presencial', 'Semipresencial', 'Ao Vivo (Online)', 'EAD 100%'],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        },
-        {
-          id: '4',
-          name: 'Análise e Desenvolvimento de Sistemas',
-          duration: '2 anos e 5 meses',
-          icon: 'fas fa-laptop-code',
-          description: 'Forma profissionais capacitados para criar, implementar e gerenciar softwares e sistemas computacionais. Com forte foco prático e alta empregabilidade, o aluno desenvolve competências que atendem à demanda crescente do mercado de tecnologia, o colegiado é atuante em diversos projetos como: Semana Nacional da TI, Cursos sobre IA, Curso de Programação Mobile, Criação de sites, Soluções em Hardware, entre outros.',
-          differentials: ['Semana Nacional da TI', 'Laboratório de Transformação Digital (LDT)', 'Projetos com IA e mobile'],
-          market: ['Dev/Back-end/Front-end — R$ 4.000 - R$ 12.000', 'Cientista de Dados — R$ 6.000 - R$ 20.000', 'Cloud/DevOps — R$ 7.000 - R$ 16.000'],
-          postgrad: ['Engenharia de Software', 'Inteligência Artificial', 'DevOps'],
-          events: ['Semana Nacional da TI', 'Cursos sobre IA', 'Hackathons e palestras'],
-          internships: 'Estágios em empresas de software, startups e projetos institucionais.',
-          modalidades: ['Presencial', 'Semipresencial', 'Ao Vivo (Online)', 'EAD 100%'],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        },
-        {
-          id: '5',
-          name: 'Biomedicina',
-          duration: '4 anos',
-          icon: 'fas fa-microscope',
-          description: 'O curso de Biomedicina da Estácio tem duração média de quatro anos e forma profissionais capacitados a atuar na área da saúde, com foco na pesquisa, diagnóstico e prevenção de doenças. Durante a graduação, os alunos desenvolvem conhecimentos em disciplinas como microbiologia, imunologia, bioquímica e análises clínicas, preparando-se para trabalhar em laboratórios, centros de pesquisa e instituições de saúde pública e privada.',
-          differentials: ['Laboratórios modernos', 'Projetos de extensão em saúde', 'Atividades práticas desde cedo'],
-          market: ['Biomédico de Análises Clínicas — R$3.200', 'Biomédico em Imagenologia — R$6.000 - R$12.000', 'Engenheiro Biomédico — R$8.463'],
-          postgrad: ['Análises Clínicas', 'Imagem/Radiologia', 'Biomedicina Estética'],
-          events: ['Jornada de Biomedicina', 'Estácio Anatomy'],
-          internships: 'Estágios supervisionados em laboratórios, hospitais e centros de pesquisa.',
-          modalidades: ['Presencial', 'Semipresencial', 'Ao Vivo (Online)', 'EAD 100%'],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        },
-        {
-          id: '6',
-          name: 'Fisioterapia',
-          duration: '5 anos (bacharelado)',
-          icon: 'fas fa-hands-helping',
-          description: 'O curso de Fisioterapia é um curso de graduação bacharelado com duração de 5 anos, que tem como missão formar profissionais capacitados com sólida, senso crítico e compromisso com a promoção da saúde e qualidade de vida. O curso possui nota 4 na faculdade Estácio Macapá e se destaca pela excelência do corpo docente, composto por mestres e especialistas, e pela estrutura do seu Laboratório de Práticas Fisioterapêuticas, que oferece atendimentos gratuitos à comunidade.',
-          differentials: ['Laboratório de Cinesioterapia', 'Atendimentos comunitários', 'Parcerias para estágios'],
-          market: ['Fisioterapeuta Intensivista — R$3.000 - R$6.500', 'Fisioterapeuta Neurofuncional — R$3.000 - R$5.500', 'Fisioterapeuta Ortopédico — R$2.700 - R$7.000'],
-          postgrad: ['Fisioterapia Intensiva', 'Fisioterapia Pélvica', 'Fisioterapia Ortopédica'],
-          events: ['Palestras', 'Visitas técnicas', 'Cursos de férias'],
-          internships: 'Estágios hospitalares, ambulatoriais e comunitários; atendimentos no ambulatório de cinesioterapia.',
-          modalidades: ['Presencial', 'Semipresencial', 'Ao Vivo (Online)', 'EAD 100%'],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        },
-        {
-          id: '7',
-          name: 'Nutrição',
-          duration: '4 anos',
-          icon: 'fas fa-apple-alt',
-          description: 'O curso de Nutrição é um curso de graduação bacharelado com duração de 4 anos com foco na formação de profissionais capacitados para atuar na promoção da saúde. O curso se destaca por atividades práticas supervisionadas desde os primeiro semestres, no laboratório de Técnicas Dietéticas que é o único laboratório de instituição privada que possui máquina para produção de açaí no Estado do Amapá, além de parcerias estratégicas.',
-          differentials: ['Laboratório com máquina de açaí', 'Parcerias estratégicas', 'Atividades práticas desde cedo'],
-          market: ['Nutricionista Clínico — R$3.500 - R$6.000', 'Nutricionista Esportivo — R$6.000 - R$8.000', 'Nutricionista Hospitalar — R$3.500 - R$7.000'],
-          postgrad: ['Nutrição Clínica', 'Nutrição Esportiva', 'Nutrição Materno Infantil'],
-          events: ['Semana da Nutrição', 'Visitas Técnicas ao CEPAJOB e HU'],
-          internships: 'Estágios em CEPAJOB, hospitais, bancos de leite e serviços de alimentação.',
-          modalidades: ['Presencial', 'Semipresencial', 'Ao Vivo (Online)', 'EAD 100%'],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        },
-        {
-          id: '8',
-          name: 'Odontologia',
-          duration: '5 anos',
-          icon: 'fas fa-tooth',
-          description: 'O curso de Odontologia da Estácio tem 5 anos de duração e forma bacharéis aptos a diagnosticar, prevenir e tratar problemas bucais, com uma base técnica e humanizada. A formação combina teoria e prática desde o início com a Pré-Clínica de Odontologia, e oferece oficinas especializadas com certificação. Os estudantes adquirem experiências reais através de projetos de extensão e estágios, garantindo preparo completo para o mercado de trabalho.',
-          differentials: ['Pré-clínica de Odontologia', 'Oficinas com certificação', 'Projetos de extensão e estágios'],
-          market: ['Dentista Clínico — R$6.208,08', 'Harmonização Orofacial — R$6.522,63', 'Saúde Pública — R$9.205,90'],
-          postgrad: ['Gestão de Clínicas', 'Cosmetologia e Estética Avançada', 'Saúde Pública'],
-          events: ['Semana Acadêmica Nacional da Saúde', 'Curso prático de suturas'],
-          internships: 'Pré-clínica, estágios em clínicas e serviços públicos; projetos de extensão.',
-          modalidades: ['Presencial', 'Semipresencial', 'Ao Vivo (Online)', 'EAD 100%'],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        },
-        {
-          id: '9',
-          name: 'Radiologia',
-          duration: '3 anos (média)',
-          icon: 'fas fa-x-ray',
-          description: 'O curso de Radiologia da Estácio tem duração média de três anos e forma profissionais capacitados para atuar com tecnologia de ponta no diagnóstico por imagem. Durante a graduação, os alunos realizam estágios supervisionados em clínicas, hospitais e centros de diagnóstico, além de participar de projetos que promovem o uso seguro das radiações ionizantes.',
-          differentials: ['Sala de Raio-X e apoio técnico', 'Simulações e práticas em mamografia e ultrassom'],
-          market: ['Técnico em Radiologia — R$2.800 - R$5.500', 'Mamografia/Ultrassonografia — R$3.000 - R$5.000', 'Docência e Pesquisa — R$3.500 - R$6.000'],
-          postgrad: ['Tomografia/Ressonância', 'Radioterapia', 'Telerradiologia'],
-          events: ['Semana da Saúde', 'Simulados ENADE', 'Visitas técnicas'],
-          internships: 'Estágios supervisionados em hospitais, clínicas e centros de diagnóstico.',
-          modalidades: ['Presencial', 'Semipresencial', 'Ao Vivo (Online)', 'EAD 100%'],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        }
-      ];
-
-      // Adicionar todos os cursos ao banco de dados
-      for (const course of cursosSeletor) {
-        try {
-          await addCourse(course);
-        } catch (error) {
-          console.log(`Curso ${course.name} já existe ou erro ao adicionar:`, error);
-        }
-      }
-      
-      console.log(`Cursos do seletor carregados: ${cursosSeletor.length} cursos`);
-    }
-
-    // Adicionar usuário ao banco (função auxiliar)
-    async function addUser(user) {
-      return new Promise((resolve, reject) => {
-        const transaction = db.transaction(['users'], 'readwrite');
-        const store = transaction.objectStore('users');
-        const request = store.add(user);
-        
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-      });
-    }
-
-    // Inicializar quando o DOM estiver pronto
-    document.addEventListener('DOMContentLoaded', initializeSystem);
-
-    // Expor funções globais para uso em botões
+    // Expor funções globais
     window.logout = logout;
     window.clearCache = clearCache;
-    window.sendMessage = sendMessage;
-    window.handleKeyPress = handleKeyPress;
-    window.submitFeedback = submitFeedback;
-    window.saveCourse = saveCourse;
-    window.resetCourseForm = resetCourseForm;
-    window.editCourse = editCourse;
-    window.deleteCoursePrompt = deleteCoursePrompt;
-    window.loadFeedbacks = loadFeedbacks;
-    window.insertObjectionResponse = insertObjectionResponse;
-    window.viewCourseDetails = viewCourseDetails;
-    window.showAddCourseForm = showAddCourseForm;
-    window.hideCourseForm = hideCourseForm;
-    window.toggleObjectionsMenu = toggleObjectionsMenu;
-    window.loadCourses = loadCourses; // Adicionada para o botão Atualizar
-
-    // Atualiza indicador simples de disponibilidade da API
-    function updateApiStatus() {
-      const badge = document.getElementById('apiStatusBadge');
-      if (!badge) return;
-      const key = localStorage.getItem('openrouterApiKey');
-      if (key) {
-        badge.textContent = 'API: Configurada';
-        badge.style.color = 'var(--success)';
-      } else {
-        badge.textContent = 'API: Offline';
-        badge.style.color = 'var(--danger)';
-      }
-    }
-
-    // Atualizar quando outro documento altera a chave
-    window.addEventListener('storage', (e) => {
-      if (e.key === 'openrouterApiKey') updateApiStatus();
-    });
   </script>
 </body>
 </html>
