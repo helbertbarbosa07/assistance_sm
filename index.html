@@ -3,28 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/style.css">
-    <title>Assistance SM - Sistema Completo</title>
+    <title>Assistance SM - Sistema Inteligente</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-    
+        /* Estilos inline para carregamento rápido */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f9fafb; }
+        .hidden { display: none !important; }
     </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <!-- Sistema Principal (inicialmente oculto) -->
+    <!-- Página de Login -->
+    <div id="loginPage" class="login-page">
+        <div class="login-container">
+            <div class="login-header">
+                <h1><i class="fas fa-brain"></i> Assistance SM</h1>
+                <p>Sistema Inteligente de Gestão Educacional</p>
+            </div>
+            
+            <div class="login-tabs">
+                <button class="tab-btn active" onclick="showTab('user', this)">
+                    <i class="fas fa-user-graduate"></i> Acesso Rápido
+                </button>
+                <button class="tab-btn" onclick="showTab('admin', this)">
+                    <i class="fas fa-user-shield"></i> Administrador
+                </button>
+            </div>
+
+            <!-- Acesso Rápido -->
+            <div id="userTab" class="tab-content">
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Seu Nome</label>
+                    <input type="text" id="username" class="form-control" 
+                           placeholder="Digite seu nome ou apelido" value="Visitante">
+                </div>
+                <button class="btn btn-primary" onclick="loginAsUser()" style="width: 100%; margin-top: 20px;">
+                    <i class="fas fa-rocket"></i> Entrar no Sistema
+                </button>
+                <div style="margin-top: 24px; text-align: center;">
+                    <p style="color: var(--secondary); font-size: 14px; line-height: 1.6;">
+                        <i class="fas fa-bolt"></i> Acesso instantâneo para testar todas as funcionalidades
+                    </p>
+                </div>
+            </div>
+
+            <!-- Acesso Admin -->
+            <div id="adminTab" class="tab-content" style="display: none;">
+                <div class="form-group">
+                    <label><i class="fas fa-user-circle"></i> Usuário Admin</label>
+                    <input type="text" id="adminUser" class="form-control" 
+                           placeholder="admin" value="admin">
+                </div>
+                <div class="form-group" style="margin-top: 16px;">
+                    <label><i class="fas fa-key"></i> Senha</label>
+                    <input type="password" id="adminPass" class="form-control" 
+                           placeholder="Digite a senha" value="admin123">
+                </div>
+                <button class="btn btn-primary" onclick="loginAsAdmin()" style="width: 100%; margin-top: 24px;">
+                    <i class="fas fa-sign-in-alt"></i> Acessar Painel Admin
+                </button>
+                <div style="margin-top: 24px; text-align: center;">
+                    <p style="color: var(--secondary); font-size: 14px; line-height: 1.6;">
+                        <i class="fas fa-shield-alt"></i> Acesso completo ao sistema administrativo
+                    </p>
+                </div>
+            </div>
+            
+            <div style="padding: 20px 32px; border-top: 1px solid #e5e7eb; text-align: center;">
+                <small style="color: var(--secondary); font-size: 12px;">
+                    <i class="fas fa-info-circle"></i> Sistema v4.0 | Integração IA OpenRouter
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sistema Principal -->
     <div id="app" class="app-container" style="display: none;">
         <!-- Sidebar -->
         <div class="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
-                    <i class="fas fa-robot"></i>
+                    <i class="fas fa-brain"></i>
                     <div>
-                        <div class="logo-text">Assistance SM</div>
-                        <div class="logo-subtext">Sistema IA</div>
+                        <div class="logo-text">Assistance</div>
+                        <div class="logo-subtext">SM v4.0</div>
                     </div>
                 </div>
             </div>
+            
             <div class="user-info">
                 <div class="user-avatar" id="userAvatar">U</div>
                 <div class="user-details">
@@ -32,9 +102,10 @@
                     <p id="userRole">Carregando...</p>
                 </div>
             </div>
+            
             <div class="nav-menu">
                 <div class="nav-item active" data-page="dashboard">
-                    <i class="fas fa-home"></i>
+                    <i class="fas fa-tachometer-alt"></i>
                     <span>Dashboard</span>
                 </div>
                 <div class="nav-item" data-page="ia">
@@ -45,14 +116,17 @@
                     <i class="fas fa-comment-dots"></i>
                     <span>Feedback</span>
                 </div>
-                <!-- MENU ADMINISTRATIVO (somente para admin) -->
                 <div class="nav-item admin-only" data-page="courses" style="display: none;">
                     <i class="fas fa-book"></i>
                     <span>Gestão de Cursos</span>
                 </div>
                 <div class="nav-item admin-only" data-page="admin" style="display: none;">
-                    <i class="fas fa-cogs"></i>
+                    <i class="fas fa-chart-line"></i>
                     <span>Painel Admin</span>
+                </div>
+                <div class="nav-item" data-page="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Configurações</span>
                 </div>
                 <div class="nav-item" data-page="about">
                     <i class="fas fa-info-circle"></i>
@@ -65,13 +139,13 @@
         <div class="main-content">
             <div class="top-bar">
                 <div class="welcome-message" id="welcomeMessage">
-                    Bem-vindo, <strong id="userFullName">Usuário</strong>!
+                    Bem-vindo de volta, <strong id="userFullName">Usuário</strong>!
                 </div>
                 <div class="top-bar-actions">
-                    <span id="apiStatusBadge" style="font-weight:600; color:var(--danger); margin-right:8px;">
-                        API: Offline
+                    <span id="apiStatusBadge" class="badge badge-warning">
+                        <i class="fas fa-plug"></i> API: OFFLINE
                     </span>
-                    <button class="btn btn-danger" onclick="logout()">
+                    <button class="btn btn-danger btn-sm" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i> Sair
                     </button>
                 </div>
@@ -81,31 +155,41 @@
             <div id="pages">
                 <!-- Dashboard -->
                 <div id="dashboardPage" class="page active">
-                    <div class="container" style="max-width: 1200px; margin: 0 auto;">
+                    <div class="container">
                         <div class="admin-section">
                             <h2 class="section-title">
-                                <i class="fas fa-tachometer-alt"></i> Dashboard do Sistema
+                                <i class="fas fa-tachometer-alt"></i> Dashboard Principal
                             </h2>
-                            <p>Bem-vindo ao sistema Assistance SM com IA avançada.</p>
+                            <p>Monitoramento em tempo real do sistema Assistance SM</p>
                         </div>
+                        
                         <div class="admin-stats" id="dashboardStats">
-                            <!-- Stats serão preenchidos via JavaScript -->
+                            <!-- Stats serão carregados via JS -->
+                        </div>
+                        
+                        <div class="admin-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-chart-bar"></i> Atividade Recente
+                            </h3>
+                            <p style="color: var(--secondary); text-align: center; padding: 40px;">
+                                <i class="fas fa-sync fa-spin"></i> Carregando atividades...
+                            </p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Assistente IA -->
                 <div id="iaPage" class="page">
-                    <div class="container" style="max-width: 1200px; margin: 0 auto;">
+                    <div class="container">
                         <div class="chat-container">
                             <!-- Sidebar de Cursos -->
                             <div class="sidebar-cursos">
                                 <div class="sidebar-cursos-header">
-                                    <h3><i class="fas fa-graduation-cap"></i> Cursos Disponíveis</h3>
-                                    <p>Selecione um curso para conversar</p>
+                                    <h3><i class="fas fa-graduation-cap"></i> Catálogo de Cursos</h3>
+                                    <p>Selecione um curso para iniciar</p>
                                 </div>
                                 <div class="cursos-container" id="cursosContainer">
-                                    <!-- Cursos serão carregados via JavaScript -->
+                                    <!-- Cursos serão carregados via JS -->
                                 </div>
                             </div>
 
@@ -118,21 +202,38 @@
                                     </div>
                                     <div class="current-course" id="currentCourse">
                                         <i class="fas fa-book"></i>
-                                        <span>Selecione um curso</span>
+                                        <span>Selecione um curso ao lado</span>
                                     </div>
                                 </div>
+                                
                                 <div class="messages-container" id="messagesContainer">
-                                    <!-- Mensagens serão carregadas aqui -->
+                                    <div class="message assistant">
+                                        <div class="message-header">
+                                            <i class="fas fa-robot"></i>
+                                            Assistente IA
+                                        </div>
+                                        <div class="message-content">
+                                            Olá! 👋 Eu sou seu assistente de vendas especializado em cursos universitários.
+                                            <br><br>
+                                            <strong>Como posso ajudar você hoje?</strong>
+                                            <br><br>
+                                            1. Selecione um curso ao lado<br>
+                                            2. Faça perguntas sobre o curso<br>
+                                            3. Peça scripts de vendas<br>
+                                            4. Obtenha informações de mercado
+                                        </div>
+                                    </div>
                                 </div>
+                                
                                 <div class="input-container">
                                     <div class="input-wrapper">
-                                        <textarea id="userInput" placeholder="Digite sua mensagem para a IA..." rows="1"></textarea>
+                                        <textarea id="userInput" placeholder="Digite sua pergunta aqui... Pressione Enter para enviar, Shift+Enter para nova linha." rows="1"></textarea>
                                         <button class="btn btn-primary" id="sendButton" onclick="sendMessage()">
                                             <i class="fas fa-paper-plane"></i>
                                         </button>
                                     </div>
                                     <div class="quick-actions" id="quickActions">
-                                        <!-- Ações rápidas -->
+                                        <!-- Ações rápidas serão carregadas via JS -->
                                     </div>
                                 </div>
                             </div>
@@ -142,95 +243,32 @@
 
                 <!-- Feedback -->
                 <div id="feedbackPage" class="page">
-                    <div class="container" style="max-width: 1200px; margin: 0 auto;">
-                        <!-- Conteúdo do Feedback -->
-                    </div>
+                    <!-- Conteúdo será carregado via JS -->
                 </div>
 
-                <!-- Gestão de Cursos (Admin) -->
+                <!-- Gestão de Cursos -->
                 <div id="coursesPage" class="page">
-                    <div class="container" style="max-width: 1200px; margin: 0 auto;">
-                        <!-- Conteúdo da Gestão de Cursos -->
-                    </div>
+                    <!-- Conteúdo será carregado via JS -->
                 </div>
 
                 <!-- Painel Admin -->
                 <div id="adminPage" class="page">
-                    <div class="container" style="max-width: 1200px; margin: 0 auto;">
-                        <!-- Conteúdo do Painel Admin -->
-                    </div>
+                    <!-- Conteúdo será carregado via JS -->
+                </div>
+
+                <!-- Configurações -->
+                <div id="settingsPage" class="page">
+                    <!-- Conteúdo será carregado via JS -->
                 </div>
 
                 <!-- Sobre -->
                 <div id="aboutPage" class="page">
-                    <div class="container" style="max-width: 1200px; margin: 0 auto;">
-                        <!-- Conteúdo Sobre -->
-                    </div>
+                    <!-- Conteúdo será carregado via JS -->
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Página de Login (inicialmente visível) -->
-    <div id="loginPage" class="login-page">
-        <div class="login-container">
-            <div class="login-header">
-                <h1><i class="fas fa-robot"></i> Assistance SM</h1>
-                <p>Sistema Inteligente de Gestão</p>
-            </div>
-            <div class="login-tabs">
-                <button class="tab-btn active" onclick="showTab('user', this)">
-                    <i class="fas fa-user"></i> Usuário
-                </button>
-                <button class="tab-btn" onclick="showTab('admin', this)">
-                    <i class="fas fa-lock"></i> Administrador
-                </button>
-            </div>
-
-            <!-- ABA USUÁRIO -->
-            <div id="userTab" class="tab-content">
-                <div class="form-group">
-                    <label><i class="fas fa-user"></i> Nome de Usuário</label>
-                    <input type="text" id="username" class="form-control" placeholder="Digite seu nome" value="Usuário Teste">
-                </div>
-                <button class="btn btn-primary" onclick="loginAsUser()" style="width: 100%;">
-                    <i class="fas fa-sign-in-alt"></i> Entrar como Usuário
-                </button>
-                <div style="margin-top: 20px; text-align: center;">
-                    <p style="color: var(--secondary); font-size: 14px;">
-                        <i class="fas fa-info-circle"></i> Como usuário, você pode usar o chat imediatamente
-                    </p>
-                </div>
-            </div>
-
-            <!-- ABA ADMIN -->
-            <div id="adminTab" class="tab-content" style="display: none;">
-                <div class="form-group">
-                    <label><i class="fas fa-user-shield"></i> Usuário Admin</label>
-                    <input type="text" id="adminUser" class="form-control" placeholder="admin" value="admin">
-                </div>
-                <div class="form-group">
-                    <label><i class="fas fa-key"></i> Senha Admin</label>
-                    <input type="password" id="adminPass" class="form-control" placeholder="Digite a senha" value="admin123">
-                </div>
-                <button class="btn btn-primary" onclick="loginAsAdmin()" style="width: 100%;">
-                    <i class="fas fa-sign-in-alt"></i> Entrar como Admin
-                </button>
-                <div style="margin-top: 20px; text-align: center;">
-                    <p style="color: var(--secondary); font-size: 14px;">
-                        <i class="fas fa-shield-alt"></i> Acesso restrito aos administradores do sistema
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-       
-    </script>
+    <script src="js/script.js"></script>
 </body>
 </html>
-
-
-
-
