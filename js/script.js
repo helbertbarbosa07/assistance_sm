@@ -4,544 +4,197 @@
 let currentUser = null;
 let currentCourse = null;
 let isTyping = false;
-let API_BASE_URL = 'http://localhost:3000/api'; // Ajuste conforme necessário
+
+// Configuração da API - ajuste conforme seu deployment
+let API_BASE_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3000/api' 
+    : 'https://seu-dominio.com/api';
+
+// Configuração OpenRouter
+const OPENROUTER_API_KEY = localStorage.getItem('openrouter_api_key') || '';
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 // ==============================
-// AUTENTICAÇÃO E SESSÃO
+// FUNÇÃO PARA CONFIGURAR API KEY
 // ==============================
-async function initDatabase() {
-    // Verificar se há usuário salvo
-    const savedUser = localStorage.getItem('assistance_user');
-    if (savedUser) {
-        currentUser = JSON.parse(savedUser);
-        // Verificar se token ainda é válido
-        await validateToken();
-    }
-}
-
-async function validateToken() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/auth/validate`, {
-            headers: {
-                'Authorization': `Bearer ${currentUser?.token}`
-            }
+function configureOpenRouter() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal">
+            <h3 style="margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
+                <i class="fas fa-robot"></i> Configurar OpenRouter API
+            </h3>
+            
+            <div class="form-group">
+                <label class="form-label">API Key OpenRouter</label>
+                <input type="password" id="apiKeyInput" class="form-control" 
+                       value="${OPENROUTER_API_KEY}"
+                       placeholder="Cole sua API key aqui">
+                <small style="color: var(--secondary); margin-top: 4px; display: block;">
+                    Obtenha sua API key gratuita em <a href="https://openrouter.ai/keys" target="_blank" style="color: var(--primary);">openrouter.ai/keys</a>
+                </small>
+            </div>
+            
+            <div class="form-group" style="margin-top: 20px;">
+                <label class="form-label">Modelo de IA</label>
+                <select id="modelSelect" class="form-control">
+                    <option value="mistralai/mistral-7b-instruct:free">Mistral 7B (Free)</option>
+                    <option value="openai/gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                    <option value="openai/gpt-4">GPT-4</option>
+                    <option value="google/gemini-pro">Gemini Pro</option>
+                    <option value="anthropic/claude-2">Claude 2</option>
+                </select>
+            </div>
+            
+            <div class="form-group" style="margin-top: 20px;">
+                <label class="form-label">
+                    Temperatura: <span id="tempValue">0.7</span>
+                </label>
+                <input type="range" id="tempRange" class="form-control" min="0" max="1" step="0.1" value="0.7">
+            </div>
+            
+            <div style="margin-top: 32px; display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="closeModal()">
+                    Cancelar
+                </button>
+                <button class="btn btn-primary" onclick="saveApiConfig()">
+                    <i class="fas fa-save"></i> Salvar Configurações
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Configurar slider
+    const tempRange = document.getElementById('tempRange');
+    const tempValue = document.getElementById('tempValue');
+    if (tempRange && tempValue) {
+        tempRange.addEventListener('input', (e) => {
+            tempValue.textContent = e.target.value;
         });
-        
-        if (!response.ok) {
-            throw new Error('Token inválido');
-        }
-        
-        return true;
-    } catch (error) {
-        logout();
-        return false;
+    }
+    
+    // Carregar configurações salvas
+    const savedModel = localStorage.getItem('ai_model');
+    const savedTemp = localStorage.getItem('ai_temperature');
+    if (savedModel) {
+        document.getElementById('modelSelect').value = savedModel;
+    }
+    if (savedTemp) {
+        tempRange.value = savedTemp;
+        tempValue.textContent = savedTemp;
     }
 }
 
-function showTab(tab, btn) {
-    // Atualizar botões
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    if (btn) btn.classList.add('active');
+function saveApiConfig() {
+    const apiKey = document.getElementById('apiKeyInput').value.trim();
+    const model = document.getElementById('modelSelect').value;
+    const temperature = document.getElementById('tempRange').value;
     
-    // Mostrar conteúdo da aba
-    document.getElementById('userTab').style.display = tab === 'user' ? 'block' : 'none';
-    document.getElementById('adminTab').style.display = tab === 'admin' ? 'block' : 'none';
-}
-
-async function loginAsUser() {
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password')?.value.trim();
-    
-    if (!username) {
-        showNotification('Digite um nome de usuário', 'error');
+    if (!apiKey) {
+        showNotification('Digite uma API key válida', 'error');
         return;
     }
     
-    try {
-        const response = await fetch(`${API_BASE_URL}/auth/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                username: username,
-                password: password || 'default' // Para usuários simples sem senha
-            })
-        });
-        
-        if (!response.ok) {
-            throw new Error('Credenciais inválidas');
-        }
-        
-        const userData = await response.json();
-        
-        currentUser = {
-            ...userData,
-            token: userData.token
-        };
-        
-        localStorage.setItem('assistance_user', JSON.stringify(currentUser));
-        localStorage.setItem('auth_token', userData.token);
-        
-        await showMainSystem();
-        showNotification(`Bem-vindo, ${userData.nome || username}!`, 'success');
-        
-    } catch (error) {
-        console.error('Erro no login:', error);
-        showNotification('Erro ao fazer login', 'error');
+    // Salvar configurações
+    localStorage.setItem('openrouter_api_key', apiKey);
+    localStorage.setItem('ai_model', model);
+    localStorage.setItem('ai_temperature', temperature);
+    
+    // Atualizar variável global
+    OPENROUTER_API_KEY = apiKey;
+    
+    closeModal();
+    showNotification('Configurações da IA salvas com sucesso!', 'success');
+    
+    // Atualizar status
+    updateApiStatus();
+}
+
+function updateApiStatus() {
+    const apiStatus = document.querySelector('.api-status');
+    if (apiStatus) {
+        const hasApiKey = !!localStorage.getItem('openrouter_api_key');
+        apiStatus.innerHTML = `
+            <i class="fas fa-plug" style="color: ${hasApiKey ? 'var(--success)' : 'var(--danger)'}"></i>
+            <span>OpenRouter: ${hasApiKey ? 'CONECTADA' : 'DESCONECTADA'}</span>
+        `;
     }
 }
 
-async function loginAsAdmin() {
-    const username = document.getElementById('adminUser').value.trim();
-    const password = document.getElementById('adminPass').value.trim();
-    
-    if (!username || !password) {
-        showNotification('Preencha todos os campos', 'error');
-        return;
-    }
+// ==============================
+// CHAT COM IA ONLINE/API
+// ==============================
+async function generateAIResponseOnline(userMessage) {
+    const course = localCourses.find(c => c.id === currentCourse.id);
     
     try {
-        const response = await fetch(`${API_BASE_URL}/auth/login-admin`, {
+        const response = await fetch(OPENROUTER_API_URL, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                'HTTP-Referer': window.location.origin,
+                'X-Title': 'Assistance SM'
             },
             body: JSON.stringify({
-                username: username,
-                password: password
+                model: localStorage.getItem('ai_model') || 'mistralai/mistral-7b-instruct:free',
+                messages: [
+                    {
+                        role: 'system',
+                        content: `Você é um assistente de vendas especializado em cursos universitários brasileiros.
+                        
+INFORMAÇÕES SOBRE O CURSO:
+- Nome: ${course.name}
+- Duração: ${course.duration}
+- Descrição: ${course.description}
+- Preço: R$ ${course.price.toFixed(2)} mensais
+- Modalidades: Presencial, Semipresencial e EaD
+
+INSTRUÇÕES IMPORTANTES:
+1. Responda sempre em português brasileiro
+2. Seja profissional e amigável
+3. Use formatação markdown para organizar as respostas
+4. Inclua emojis relevantes para tornar a resposta mais visual
+5. Foque em ajudar com vendas e esclarecimento de dúvidas
+6. Se a pergunta for sobre script de vendas, forneça um script completo e pronto para uso
+7. Se for sobre valores, forneça todas as opções de pagamento
+8. Se for sobre mercado de trabalho, seja realista e otimista
+
+EXEMPLOS DE RESPOSTAS:
+- Para dúvidas sobre o curso: forneça detalhes da grade, professores, infraestrutura
+- Para valores: mostre todas as formas de pagamento e descontos disponíveis
+- Para scripts: forneça modelos prontos para WhatsApp, ligação ou e-mail`
+                    },
+                    {
+                        role: 'user',
+                        content: userMessage
+                    }
+                ],
+                temperature: parseFloat(localStorage.getItem('ai_temperature') || '0.7'),
+                max_tokens: 1500
             })
         });
         
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || 'Credenciais inválidas');
+            throw new Error(errorData.error?.message || `Erro na API: ${response.status}`);
         }
         
-        const userData = await response.json();
-        
-        if (userData.role !== 'admin') {
-            showNotification('Acesso apenas para administradores', 'error');
-            return;
-        }
-        
-        currentUser = {
-            ...userData,
-            token: userData.token,
-            isAdmin: true
-        };
-        
-        localStorage.setItem('assistance_user', JSON.stringify(currentUser));
-        localStorage.setItem('auth_token', userData.token);
-        
-        await showMainSystem();
-        showNotification(`Bem-vindo, Admin ${userData.nome || username}!`, 'success');
+        const data = await response.json();
+        return data.choices[0].message.content;
         
     } catch (error) {
-        console.error('Erro no login admin:', error);
-        showNotification(error.message || 'Erro ao fazer login', 'error');
+        console.error('Erro na API OpenRouter:', error);
+        throw error;
     }
 }
 
 // ==============================
-// FUNÇÕES DO SISTEMA PRINCIPAL
+// FUNÇÃO SENDMESSAGE ATUALIZADA
 // ==============================
-async function showMainSystem() {
-    document.getElementById('loginPage').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
-    
-    // Atualizar informações do usuário
-    updateUserInfo();
-    
-    // Configurar navegação
-    setupNavigation();
-    
-    // Carregar dashboard inicial
-    await loadDashboard();
-    
-    // Configurar menu mobile
-    setupMobileMenu();
-}
-
-function updateUserInfo() {
-    if (currentUser) {
-        document.getElementById('userName').textContent = currentUser.nome || currentUser.username;
-        document.getElementById('userRole').textContent = currentUser.role === 'admin' ? 'Administrador' : 'Usuário';
-        document.getElementById('userFullName').textContent = currentUser.nome || currentUser.username;
-        
-        const initials = (currentUser.nome || currentUser.username)
-            .split(' ')
-            .map(n => n[0])
-            .join('')
-            .toUpperCase()
-            .substring(0, 2);
-        
-        document.getElementById('userAvatar').textContent = initials;
-        
-        // Mostrar/ocultar menus administrativos
-        const adminItems = document.querySelectorAll('.admin-only');
-        adminItems.forEach(item => {
-            item.style.display = currentUser.role === 'admin' ? 'flex' : 'none';
-        });
-    }
-}
-
-function setupNavigation() {
-    // Adicionar event listeners aos itens do menu
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', function() {
-            // Remover classe active de todos
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            // Adicionar ao item clicado
-            this.classList.add('active');
-            
-            // Fechar sidebar no mobile
-            if (window.innerWidth <= 768) {
-                document.querySelector('.sidebar').classList.remove('active');
-            }
-            
-            // Mostrar página correspondente
-            const page = this.getAttribute('data-page');
-            showPage(page);
-        });
-    });
-}
-
-function setupMobileMenu() {
-    const mobileToggle = document.querySelector('.mobile-toggle') || document.createElement('button');
-    mobileToggle.className = 'mobile-toggle';
-    mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
-    mobileToggle.addEventListener('click', () => {
-        document.querySelector('.sidebar').classList.toggle('active');
-    });
-    
-    if (!document.querySelector('.mobile-toggle')) {
-        document.querySelector('.main-content').prepend(mobileToggle);
-    }
-}
-
-function showPage(page) {
-    // Ocultar todas as páginas
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    
-    // Mostrar página selecionada
-    const pageElement = document.getElementById(page + 'Page');
-    if (pageElement) {
-        pageElement.classList.add('active');
-    }
-    
-    // Carregar conteúdo específico da página
-    switch(page) {
-        case 'dashboard':
-            loadDashboard();
-            break;
-        case 'ia':
-            loadChat();
-            break;
-        case 'feedback':
-            loadFeedbacks();
-            break;
-        case 'courses':
-            if (currentUser?.role === 'admin') {
-                loadCoursesManagement();
-            } else {
-                showPage('dashboard');
-            }
-            break;
-        case 'about':
-            loadAbout();
-            break;
-    }
-}
-
-// ==============================
-// DASHBOARD
-// ==============================
-async function loadDashboard() {
-    try {
-        const token = localStorage.getItem('auth_token');
-        const response = await fetch(`${API_BASE_URL}/dashboard`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error('Erro ao carregar dashboard');
-        }
-        
-        const stats = await response.json();
-        updateDashboardStats(stats);
-        
-    } catch (error) {
-        console.error('Erro ao carregar dashboard:', error);
-        showNotification('Erro ao carregar dashboard', 'error');
-        
-        // Fallback para dados locais
-        updateDashboardStats({
-            totalUsers: 0,
-            activeCourses: 0,
-            feedbacks: 0,
-            activeSessions: 0
-        });
-    }
-}
-
-function updateDashboardStats(stats) {
-    const statsContainer = document.getElementById('dashboardStats');
-    
-    if (!statsContainer) return;
-    
-    const statsData = [
-        {
-            title: 'Usuários Ativos',
-            value: stats.totalUsers || 0,
-            icon: 'fas fa-users',
-            color: 'var(--primary)'
-        },
-        {
-            title: 'Cursos Ativos',
-            value: stats.activeCourses || 0,
-            icon: 'fas fa-book',
-            color: 'var(--success)'
-        },
-        {
-            title: 'Feedbacks',
-            value: stats.feedbacks || 0,
-            icon: 'fas fa-comment',
-            color: 'var(--warning)'
-        },
-        {
-            title: 'Sessões Ativas',
-            value: stats.activeSessions || 0,
-            icon: 'fas fa-user-clock',
-            color: 'var(--info)'
-        }
-    ];
-    
-    statsContainer.innerHTML = statsData.map(stat => `
-        <div class="stat-card">
-            <div class="stat-icon" style="background: ${stat.color}">
-                <i class="${stat.icon}"></i>
-            </div>
-            <div class="stat-info">
-                <h3>${stat.value}</h3>
-                <p>${stat.title}</p>
-            </div>
-        </div>
-    `).join('');
-}
-
-// ==============================
-// CHAT IA COM INTEGRAÇÃO REAL
-// ==============================
-async function loadChat() {
-    try {
-        // Carregar cursos da API
-        const courses = await fetchCourses();
-        displayCourses(courses);
-        
-        // Configurar campo de entrada
-        const userInput = document.getElementById('userInput');
-        if (userInput) {
-            userInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
-                }
-            });
-            
-            userInput.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = (this.scrollHeight) + 'px';
-            });
-        }
-        
-        // Configurar botão de enviar
-        const sendButton = document.getElementById('sendButton');
-        if (sendButton) {
-            sendButton.addEventListener('click', sendMessage);
-        }
-        
-    } catch (error) {
-        console.error('Erro ao carregar chat:', error);
-        showNotification('Erro ao carregar chat', 'error');
-    }
-}
-
-async function fetchCourses() {
-    try {
-        const token = localStorage.getItem('auth_token');
-        const response = await fetch(`${API_BASE_URL}/courses`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error('Erro ao carregar cursos');
-        }
-        
-        return await response.json();
-    } catch (error) {
-        console.error('Erro ao buscar cursos:', error);
-        return [];
-    }
-}
-
-function displayCourses(courses) {
-    const container = document.getElementById('cursosContainer');
-    if (!container) return;
-    
-    if (courses.length === 0) {
-        container.innerHTML = `
-            <div style="text-align: center; padding: 40px; color: var(--secondary);">
-                <i class="fas fa-book" style="font-size: 48px; margin-bottom: 16px;"></i>
-                <p>Nenhum curso disponível</p>
-            </div>
-        `;
-        return;
-    }
-    
-    container.innerHTML = courses.map(course => `
-        <div class="curso-item" data-course-id="${course.id}" onclick="selectCourse('${course.id}', '${course.name.replace(/'/g, "\\'")}')">
-            <div class="curso-icon" style="background: linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%);">
-                <i class="${course.icon || 'fas fa-book'}"></i>
-            </div>
-            <div class="curso-info">
-                <h3>${course.name}</h3>
-                <p>${course.duration || 'Duração não informada'}</p>
-                <small style="color: var(--success); font-weight: 600;">
-                    R$ ${course.price ? course.price.toFixed(2) : '--'}
-                </small>
-            </div>
-        </div>
-    `).join('');
-}
-
-function selectCourse(courseId, courseName) {
-    // Encontrar curso selecionado
-    const courses = document.querySelectorAll('.curso-item');
-    courses.forEach(item => {
-        item.classList.remove('active');
-        if (item.getAttribute('data-course-id') === courseId) {
-            item.classList.add('active');
-            currentCourse = {
-                id: courseId,
-                name: courseName
-            };
-            
-            // Atualizar header do chat
-            document.getElementById('currentCourse').innerHTML = `
-                <i class="fas fa-book"></i>
-                <span>${courseName}</span>
-            `;
-            
-            // Limpar chat anterior
-            clearChat();
-            
-            // Adicionar mensagem inicial
-            addMessage('assistant', `
-                Olá! Sou seu assistente especializado em <strong>${courseName}</strong>.
-                
-                **Como posso ajudar você hoje?**
-                
-                • Fornecer informações detalhadas sobre o curso
-                • Responder dúvidas sobre mercado de trabalho
-                • Explicar sobre especializações disponíveis
-                • Falar sobre valores e condições de pagamento
-                • Criar scripts para vendas
-                
-                O que gostaria de saber sobre este curso?
-            `);
-            
-            // Atualizar ações rápidas
-            updateQuickActions(courseName);
-        }
-    });
-}
-
-function updateQuickActions(courseName) {
-    const quickActions = document.getElementById('quickActions');
-    if (!quickActions) return;
-    
-    const actions = [
-        { text: `📚 Info sobre ${courseName}`, prompt: `Me dê informações completas sobre o curso de ${courseName}` },
-        { text: '💼 Mercado de trabalho', prompt: `Quais são as oportunidades de mercado para ${courseName}?` },
-        { text: '💰 Valores e condições', prompt: `Quais são os valores e condições de pagamento para ${courseName}?` },
-        { text: '📞 Script para ligação', prompt: `Crie um script de vendas para ligação telefônica sobre ${courseName}` },
-        { text: '💬 Script para WhatsApp', prompt: `Elabore um script de vendas para WhatsApp sobre ${courseName}` }
-    ];
-    
-    quickActions.innerHTML = actions.map(action => `
-        <button class="quick-action" onclick="setPrompt('${action.prompt.replace(/'/g, "\\'")}')">
-            ${action.text}
-        </button>
-    `).join('');
-}
-
-function setPrompt(prompt) {
-    const userInput = document.getElementById('userInput');
-    if (userInput) {
-        userInput.value = prompt;
-        userInput.focus();
-        userInput.style.height = 'auto';
-        userInput.style.height = (userInput.scrollHeight) + 'px';
-    }
-}
-
-function clearChat() {
-    const container = document.getElementById('messagesContainer');
-    if (container) {
-        container.innerHTML = '';
-    }
-}
-
-function addMessage(sender, content, isCopyable = false) {
-    const container = document.getElementById('messagesContainer');
-    if (!container) return null;
-    
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${sender}`;
-    
-    let actionsHTML = '';
-    if (isCopyable && sender === 'assistant') {
-        actionsHTML = `
-            <div class="message-actions">
-                <button class="btn btn-success btn-sm" onclick="copyToClipboard(this)">
-                    <i class="fas fa-copy"></i> Copiar
-                </button>
-                <button class="btn btn-info btn-sm" onclick="copyForWhatsApp(this)">
-                    <i class="fab fa-whatsapp"></i> WhatsApp
-                </button>
-            </div>
-        `;
-    }
-    
-    messageDiv.innerHTML = `
-        <div class="message-header">
-            <i class="fas fa-${sender === 'user' ? 'user' : 'robot'}"></i>
-            ${sender === 'user' ? 'Você' : 'Assistente IA'}
-        </div>
-        <div class="message-content">${formatMessage(content)}</div>
-        ${actionsHTML}
-    `;
-    
-    container.appendChild(messageDiv);
-    container.scrollTop = container.scrollHeight;
-    
-    return messageDiv;
-}
-
-function formatMessage(content) {
-    // Converter markdown simples para HTML
-    return content
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\n/g, '<br>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/^\s*[-*]\s+(.*?)$/gm, '• $1<br>');
-}
-
 async function sendMessage() {
     const input = document.getElementById('userInput');
     const sendButton = document.getElementById('sendButton');
@@ -575,36 +228,36 @@ async function sendMessage() {
     showTypingIndicator();
     
     try {
-        const token = localStorage.getItem('auth_token');
-        const response = await fetch(`${API_BASE_URL}/ai/chat`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                message: message,
-                courseId: currentCourse.id,
-                courseName: currentCourse.name,
-                userId: currentUser?.id
-            })
-        });
+        let aiResponse;
         
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Erro na resposta da IA');
+        // Verificar se API está configurada
+        const hasApiKey = !!localStorage.getItem('openrouter_api_key');
+        
+        if (hasApiKey) {
+            // Usar IA online
+            try {
+                aiResponse = await generateAIResponseOnline(message);
+                showNotification('Resposta da IA online carregada!', 'success');
+            } catch (apiError) {
+                console.warn('Falha na API, usando resposta local:', apiError);
+                // Fallback para resposta local
+                aiResponse = await generateLocalResponse(message);
+                showNotification('Usando resposta local (API offline)', 'warning');
+            }
+        } else {
+            // Usar IA local
+            aiResponse = await generateLocalResponse(message);
+            showNotification('Usando IA local - Configure a API para respostas avançadas', 'info');
         }
         
-        const data = await response.json();
-        
         // Adicionar resposta com botões de ação
-        addMessage('assistant', data.response, true);
+        addMessage('assistant', aiResponse, true);
         
         // Salvar no histórico
-        await saveChatHistory(message, data.response);
+        await saveChatHistoryLocal(message, aiResponse);
         
     } catch (error) {
-        console.error('Erro ao enviar mensagem:', error);
+        console.error('Erro ao gerar resposta:', error);
         addMessage('assistant', 'Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente.');
     } finally {
         // Restaurar botão
@@ -616,105 +269,8 @@ async function sendMessage() {
     }
 }
 
-async function saveChatHistory(userMessage, aiResponse) {
-    try {
-        const token = localStorage.getItem('auth_token');
-        await fetch(`${API_BASE_URL}/chat/history`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                userId: currentUser?.id,
-                courseId: currentCourse.id,
-                userMessage: userMessage,
-                aiResponse: aiResponse
-            })
-        });
-    } catch (error) {
-        console.error('Erro ao salvar histórico:', error);
-    }
-}
-
 // ==============================
-// FUNÇÕES DE UTILIDADE
-// ==============================
-function showTypingIndicator() {
-    const container = document.getElementById('messagesContainer');
-    if (!container) return;
-    
-    const typingDiv = document.createElement('div');
-    typingDiv.className = 'typing-indicator';
-    typingDiv.id = 'typingIndicator';
-    typingDiv.innerHTML = `
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
-    `;
-    container.appendChild(typingDiv);
-    container.scrollTop = container.scrollHeight;
-}
-
-function hideTypingIndicator() {
-    const indicator = document.getElementById('typingIndicator');
-    if (indicator) {
-        indicator.remove();
-    }
-}
-
-function copyToClipboard(button) {
-    const messageContent = button.closest('.message').querySelector('.message-content');
-    const text = messageContent.textContent || messageContent.innerText;
-    
-    navigator.clipboard.writeText(text).then(() => {
-        const originalHTML = button.innerHTML;
-        button.innerHTML = '<i class="fas fa-check"></i> Copiado!';
-        button.classList.remove('btn-success');
-        button.classList.add('btn-primary');
-        
-        setTimeout(() => {
-            button.innerHTML = originalHTML;
-            button.classList.remove('btn-primary');
-            button.classList.add('btn-success');
-        }, 2000);
-    });
-}
-
-function copyForWhatsApp(button) {
-    const messageContent = button.closest('.message').querySelector('.message-content');
-    let text = messageContent.textContent || messageContent.innerText;
-    
-    // Limpar formatação para WhatsApp
-    text = text
-        .replace(/\*\*(.*?)\*\*/g, '*$1*')
-        .replace(/\n{3,}/g, '\n\n')
-        .trim();
-    
-    if (navigator.share) {
-        navigator.share({
-            title: `Informações do Curso - ${currentCourse?.name}`,
-            text: text,
-            url: window.location.href
-        });
-    } else {
-        navigator.clipboard.writeText(text).then(() => {
-            const originalHTML = button.innerHTML;
-            button.innerHTML = '<i class="fas fa-check"></i> Copiado!';
-            button.classList.remove('btn-info');
-            button.classList.add('btn-success');
-            
-            setTimeout(() => {
-                button.innerHTML = originalHTML;
-                button.classList.remove('btn-success');
-                button.classList.add('btn-info');
-            }, 2000);
-        });
-    }
-}
-
-// ==============================
-// GESTÃO DE CURSOS (APENAS ADMIN)
+// GESTÃO DE CURSOS COM BOTÃO DE CONFIGURAÇÃO IA
 // ==============================
 async function loadCoursesManagement() {
     if (currentUser?.role !== 'admin') {
@@ -723,30 +279,15 @@ async function loadCoursesManagement() {
         return;
     }
     
-    try {
-        const token = localStorage.getItem('auth_token');
-        const response = await fetch(`${API_BASE_URL}/admin/courses`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error('Erro ao carregar cursos');
-        }
-        
-        const courses = await response.json();
-        displayCoursesManagement(courses);
-        
-    } catch (error) {
-        console.error('Erro ao carregar gestão de cursos:', error);
-        showNotification('Erro ao carregar cursos', 'error');
-    }
+    displayCoursesManagement(localCourses);
 }
 
 function displayCoursesManagement(courses) {
     const container = document.getElementById('coursesPage');
     if (!container) return;
+    
+    // Verificar status da API
+    const hasApiKey = !!localStorage.getItem('openrouter_api_key');
     
     container.innerHTML = `
         <div class="admin-section">
@@ -754,9 +295,22 @@ function displayCoursesManagement(courses) {
                 <i class="fas fa-book"></i> Gestão de Cursos
             </h2>
             
-            <button class="btn btn-success" onclick="showAddCourseModal()" style="margin-bottom: 24px;">
-                <i class="fas fa-plus"></i> Adicionar Novo Curso
-            </button>
+            <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+                <button class="btn btn-success" onclick="showAddCourseModal()">
+                    <i class="fas fa-plus"></i> Adicionar Novo Curso
+                </button>
+                
+                <button class="btn btn-info" onclick="configureOpenRouter()">
+                    <i class="fas fa-robot"></i> Configurar IA
+                </button>
+                
+                <div class="api-status" style="margin-left: auto; display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--light); border-radius: var(--radius);">
+                    ${hasApiKey ? 
+                        '<i class="fas fa-plug" style="color: var(--success)"></i><span>IA Online</span>' : 
+                        '<i class="fas fa-plug" style="color: var(--danger)"></i><span>IA Local</span>'
+                    }
+                </div>
+            </div>
             
             <div class="table-responsive">
                 <table>
@@ -786,9 +340,11 @@ function displayCoursesManagement(courses) {
                                 </td>
                                 <td>${course.duration}</td>
                                 <td>R$ ${course.price?.toFixed(2) || '--'}</td>
-                                <td><span class="badge ${course.active ? 'badge-success' : 'badge-secondary'}">
-                                    ${course.active ? 'Ativo' : 'Inativo'}
-                                </span></td>
+                                <td>
+                                    <span class="badge ${course.active ? 'badge-success' : 'badge-secondary'}">
+                                        ${course.active ? 'Ativo' : 'Inativo'}
+                                    </span>
+                                </td>
                                 <td>
                                     <div style="display: flex; gap: 8px;">
                                         <button class="btn btn-sm btn-primary" onclick="editCourse('${course.id}')">
@@ -804,434 +360,260 @@ function displayCoursesManagement(courses) {
                     </tbody>
                 </table>
             </div>
-        </div>
-    `;
-}
-
-function showAddCourseModal() {
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay';
-    modal.innerHTML = `
-        <div class="modal">
-            <h3 style="margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
-                <i class="fas fa-plus-circle"></i> Adicionar Novo Curso
-            </h3>
             
-            <form id="courseForm">
-                <div class="form-group">
-                    <label class="form-label">Nome do Curso *</label>
-                    <input type="text" id="courseName" class="form-control" required>
-                </div>
-                
-                <div class="form-group" style="margin-top: 16px;">
-                    <label class="form-label">Duração *</label>
-                    <input type="text" id="courseDuration" class="form-control" required>
-                </div>
-                
-                <div class="form-group" style="margin-top: 16px;">
-                    <label class="form-label">Ícone (FontAwesome)</label>
-                    <input type="text" id="courseIcon" class="form-control" placeholder="fas fa-book" value="fas fa-book">
-                </div>
-                
-                <div class="form-group" style="margin-top: 16px;">
-                    <label class="form-label">Descrição *</label>
-                    <textarea id="courseDescription" class="form-control" rows="3" required></textarea>
-                </div>
-                
-                <div class="form-group" style="margin-top: 16px;">
-                    <label class="form-label">Preço Mensal (R$) *</label>
-                    <input type="number" id="coursePrice" class="form-control" step="0.01" required>
-                </div>
-                
-                <div class="form-check" style="margin-top: 16px;">
-                    <input type="checkbox" id="courseActive" class="form-check-input" checked>
-                    <label class="form-check-label" for="courseActive">
-                        Curso ativo
-                    </label>
-                </div>
-                
-                <div style="margin-top: 32px; display: flex; gap: 12px; justify-content: flex-end;">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Salvar Curso
-                    </button>
-                </div>
-            </form>
-        </div>
-    `;
-    
-    document.body.appendChild(modal);
-    
-    const form = document.getElementById('courseForm');
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await saveCourse();
-    });
-}
-
-function closeModal() {
-    const modal = document.querySelector('.modal-overlay');
-    if (modal) modal.remove();
-}
-
-async function saveCourse() {
-    try {
-        const courseData = {
-            name: document.getElementById('courseName').value,
-            duration: document.getElementById('courseDuration').value,
-            icon: document.getElementById('courseIcon').value,
-            description: document.getElementById('courseDescription').value,
-            price: parseFloat(document.getElementById('coursePrice').value),
-            active: document.getElementById('courseActive').checked
-        };
-        
-        const token = localStorage.getItem('auth_token');
-        const response = await fetch(`${API_BASE_URL}/admin/courses`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(courseData)
-        });
-        
-        if (!response.ok) {
-            throw new Error('Erro ao salvar curso');
-        }
-        
-        closeModal();
-        showNotification('Curso salvo com sucesso!', 'success');
-        loadCoursesManagement();
-        
-    } catch (error) {
-        console.error('Erro ao salvar curso:', error);
-        showNotification('Erro ao salvar curso', 'error');
-    }
-}
-
-async function deleteCourse(courseId) {
-    if (!confirm('Tem certeza que deseja excluir este curso?')) return;
-    
-    try {
-        const token = localStorage.getItem('auth_token');
-        const response = await fetch(`${API_BASE_URL}/admin/courses/${courseId}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error('Erro ao excluir curso');
-        }
-        
-        showNotification('Curso excluído com sucesso!', 'success');
-        loadCoursesManagement();
-        
-    } catch (error) {
-        console.error('Erro ao excluir curso:', error);
-        showNotification('Erro ao excluir curso', 'error');
-    }
-}
-
-// ==============================
-// FEEDBACKS
-// ==============================
-async function loadFeedbacks() {
-    try {
-        const token = localStorage.getItem('auth_token');
-        const response = await fetch(`${API_BASE_URL}/feedbacks`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error('Erro ao carregar feedbacks');
-        }
-        
-        const feedbacks = await response.json();
-        displayFeedbacks(feedbacks);
-        
-    } catch (error) {
-        console.error('Erro ao carregar feedbacks:', error);
-        displayFeedbacks([]);
-    }
-}
-
-function displayFeedbacks(feedbacks) {
-    const container = document.getElementById('feedbackPage');
-    if (!container) return;
-    
-    container.innerHTML = `
-        <div class="admin-section">
-            <h2 class="section-title">
-                <i class="fas fa-comment-dots"></i> Sistema de Feedback
-            </h2>
-            
-            <div style="background: var(--light); padding: 24px; border-radius: var(--radius); margin-bottom: 24px;">
-                <h4 style="margin-bottom: 16px;">Envie seu feedback</h4>
-                
-                <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-                    ${[1,2,3,4,5].map(star => `
-                        <button class="star-rating" data-rating="${star}" onclick="setRating(${star})">
-                            <i class="far fa-star"></i>
+            <div style="margin-top: 32px; padding: 20px; background: var(--light); border-radius: var(--radius);">
+                <h4><i class="fas fa-robot"></i> Status da Inteligência Artificial</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 16px;">
+                    <div>
+                        <strong>Modo:</strong> ${hasApiKey ? 'Online (OpenRouter)' : 'Local'}
+                    </div>
+                    <div>
+                        <strong>Modelo:</strong> ${localStorage.getItem('ai_model') || 'Mistral 7B (Local)'}
+                    </div>
+                    <div>
+                        <strong>Respostas geradas:</strong> ${JSON.parse(localStorage.getItem('chat_history') || '[]').length}
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-outline-primary" onclick="configureOpenRouter()">
+                            <i class="fas fa-cog"></i> Alterar Configurações
                         </button>
-                    `).join('')}
-                </div>
-                
-                <textarea id="feedbackText" class="form-control" placeholder="Digite seu comentário..." rows="3"></textarea>
-                
-                <button class="btn btn-primary" onclick="submitFeedback()" style="margin-top: 16px;">
-                    <i class="fas fa-paper-plane"></i> Enviar Feedback
-                </button>
-            </div>
-            
-            <h3 style="margin-bottom: 16px;">Feedbacks Recebidos</h3>
-            
-            ${feedbacks.length === 0 ? `
-                <div style="text-align: center; padding: 40px; color: var(--secondary);">
-                    <i class="far fa-comment-dots" style="font-size: 48px; margin-bottom: 16px;"></i>
-                    <p>Nenhum feedback recebido ainda</p>
-                </div>
-            ` : `
-                <div class="feedback-list">
-                    ${feedbacks.map(feedback => `
-                        <div style="background: white; padding: 20px; border-radius: var(--radius); 
-                             margin-bottom: 16px; border: 1px solid #e5e7eb;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
-                                <div>
-                                    <strong>${feedback.userName || 'Usuário'}</strong>
-                                    <div style="color: var(--warning); margin-top: 4px;">
-                                        ${'★'.repeat(feedback.rating)}${'☆'.repeat(5 - feedback.rating)}
-                                    </div>
-                                </div>
-                                <small style="color: var(--secondary);">
-                                    ${new Date(feedback.createdAt).toLocaleDateString('pt-BR')}
-                                </small>
-                            </div>
-                            <p>${feedback.comment}</p>
-                        </div>
-                    `).join('')}
-                </div>
-            `}
-        </div>
-    `;
-}
-
-let currentRating = 0;
-
-function setRating(rating) {
-    currentRating = rating;
-    document.querySelectorAll('.star-rating').forEach((star, index) => {
-        star.innerHTML = `<i class="${index < rating ? 'fas' : 'far'} fa-star"></i>`;
-        star.style.color = index < rating ? 'var(--warning)' : '#ddd';
-    });
-}
-
-async function submitFeedback() {
-    const text = document.getElementById('feedbackText').value.trim();
-    
-    if (!currentRating) {
-        showNotification('Selecione uma avaliação', 'warning');
-        return;
-    }
-    
-    if (!text) {
-        showNotification('Digite um comentário', 'warning');
-        return;
-    }
-    
-    try {
-        const token = localStorage.getItem('auth_token');
-        const response = await fetch(`${API_BASE_URL}/feedbacks`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                rating: currentRating,
-                comment: text,
-                userId: currentUser?.id
-            })
-        });
-        
-        if (!response.ok) {
-            throw new Error('Erro ao enviar feedback');
-        }
-        
-        showNotification('Feedback enviado com sucesso! Obrigado.', 'success');
-        
-        // Limpar formulário
-        document.getElementById('feedbackText').value = '';
-        setRating(0);
-        
-        // Recarregar feedbacks
-        loadFeedbacks();
-        
-    } catch (error) {
-        console.error('Erro ao enviar feedback:', error);
-        showNotification('Erro ao enviar feedback', 'error');
-    }
-}
-
-// ==============================
-// SOBRE
-// ==============================
-function loadAbout() {
-    const container = document.getElementById('aboutPage');
-    if (!container) return;
-    
-    container.innerHTML = `
-        <div class="admin-section">
-            <h2 class="section-title">
-                <i class="fas fa-info-circle"></i> Sobre o Sistema
-            </h2>
-            
-            <div style="max-width: 800px;">
-                <p style="margin-bottom: 20px; line-height: 1.8;">
-                    <strong>Assistance SM v4.0</strong> é um sistema inteligente desenvolvido para gestão educacional 
-                    com integração de Inteligência Artificial avançada.
-                </p>
-                
-                <h3 style="margin: 24px 0 16px 0; color: var(--primary);">Funcionalidades Principais:</h3>
-                <ul style="margin-left: 24px; margin-bottom: 24px; line-height: 1.8;">
-                    <li><strong>Dashboard Intuitivo:</strong> Visualização em tempo real de estatísticas e métricas do sistema</li>
-                    <li><strong>Assistente IA Avançado:</strong> Chatbot inteligente para suporte e vendas de cursos</li>
-                    <li><strong>Sistema de Feedback:</strong> Avaliação e coleta de opiniões dos usuários em tempo real</li>
-                    <li><strong>Gestão de Cursos:</strong> CRUD completo com integração ao banco de dados</li>
-                    <li><strong>Exportação para WhatsApp:</strong> Copie respostas formatadas diretamente para conversas</li>
-                </ul>
-                
-                <div style="background: linear-gradient(135deg, var(--primary-light) 0%, #e0e7ff 100%); 
-                     padding: 24px; border-radius: var(--radius); margin-top: 32px;">
-                    <h3 style="color: var(--primary); margin-bottom: 12px;">Informações Técnicas:</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
-                        <div>
-                            <strong>Versão:</strong> 4.0.1
-                        </div>
-                        <div>
-                            <strong>Banco de Dados:</strong> PostgreSQL (Neon)
-                        </div>
-                        <div>
-                            <strong>Backend API:</strong> Node.js + Express
-                        </div>
-                        <div>
-                            <strong>IA:</strong> OpenRouter API
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
     `;
+    
+    updateApiStatus();
 }
 
 // ==============================
-// NOTIFICAÇÕES
+// PÁGINA DE CONFIGURAÇÕES COM OPÇÃO IA
 // ==============================
-function showNotification(message, type = 'info', duration = 3000) {
-    // Remover notificações existentes
-    document.querySelectorAll('.notification').forEach(n => n.remove());
+function loadSettings() {
+    if (!document.getElementById('settingsPage')) {
+        // Criar página de configurações se não existir
+        const mainContent = document.querySelector('.main-content .page-container');
+        if (mainContent) {
+            mainContent.innerHTML += `
+                <div id="settingsPage" class="page">
+                    <div class="admin-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-cog"></i> Configurações
+                        </h2>
+                        
+                        <div class="config-grid">
+                            <div class="admin-card">
+                                <h3><i class="fas fa-robot"></i> Inteligência Artificial</h3>
+                                <p style="color: var(--secondary); margin: 12px 0;">Configure sua API do OpenRouter</p>
+                                <button class="btn btn-primary" onclick="configureOpenRouter()">
+                                    <i class="fas fa-sliders-h"></i> Configurar IA
+                                </button>
+                            </div>
+                            
+                            <div class="admin-card">
+                                <h3><i class="fas fa-database"></i> Dados Locais</h3>
+                                <p style="color: var(--secondary); margin: 12px 0;">Gerencie dados armazenados localmente</p>
+                                <button class="btn btn-warning" onclick="clearLocalData()" style="margin-top: 8px;">
+                                    <i class="fas fa-trash"></i> Limpar Cache
+                                </button>
+                            </div>
+                            
+                            <div class="admin-card">
+                                <h3><i class="fas fa-download"></i> Exportar Dados</h3>
+                                <p style="color: var(--secondary); margin: 12px 0;">Faça backup dos seus dados</p>
+                                <button class="btn btn-success" onclick="exportData()" style="margin-top: 8px;">
+                                    <i class="fas fa-file-export"></i> Exportar Tudo
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 32px; padding: 24px; background: var(--light); border-radius: var(--radius);">
+                            <h4><i class="fas fa-info-circle"></i> Informações do Sistema</h4>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-top: 16px;">
+                                <div>
+                                    <strong>Versão:</strong> 4.0.1
+                                </div>
+                                <div>
+                                    <strong>Usuário:</strong> ${currentUser?.nome || 'Não logado'}
+                                </div>
+                                <div>
+                                    <strong>Status IA:</strong> ${localStorage.getItem('openrouter_api_key') ? 'Online' : 'Local'}
+                                </div>
+                                <div>
+                                    <strong>Cursos:</strong> ${localCourses.filter(c => c.active).length} ativos
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
     
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.innerHTML = `
-        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
-        <span>${message}</span>
-    `;
+    showPage('settings');
+}
+
+function clearLocalData() {
+    if (confirm('Tem certeza que deseja limpar todos os dados locais? Esta ação não pode ser desfeita.')) {
+        // Limpar dados específicos, mantendo configurações de API
+        const apiKey = localStorage.getItem('openrouter_api_key');
+        const aiModel = localStorage.getItem('ai_model');
+        const aiTemp = localStorage.getItem('ai_temperature');
+        
+        localStorage.clear();
+        
+        // Restaurar configurações de API
+        if (apiKey) localStorage.setItem('openrouter_api_key', apiKey);
+        if (aiModel) localStorage.setItem('ai_model', aiModel);
+        if (aiTemp) localStorage.setItem('ai_temperature', aiTemp);
+        
+        // Recarregar dados padrão
+        loadLocalData();
+        
+        showNotification('Dados locais limpos com sucesso', 'success');
+        setTimeout(() => location.reload(), 1500);
+    }
+}
+
+function exportData() {
+    const data = {
+        cursos: localCourses,
+        feedbacks: localFeedbacks,
+        usuarios: localUsers,
+        historico: JSON.parse(localStorage.getItem('chat_history') || '[]'),
+        exportDate: new Date().toISOString(),
+        sistema: 'Assistance SM v4.0.1'
+    };
     
-    document.body.appendChild(notification);
+    const dataStr = JSON.stringify(data, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
     
-    // Trigger animation
-    setTimeout(() => notification.classList.add('show'), 10);
+    const exportFileDefaultName = `assistance-sm-backup-${new Date().toISOString().split('T')[0]}.json`;
     
-    // Auto-remover após duração
-    setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.remove();
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+    
+    showNotification('Backup exportado com sucesso!', 'success');
+}
+
+// ==============================
+// ADICIONAR ITEM NO MENU PARA CONFIGURAÇÕES
+// ==============================
+function setupNavigation() {
+    // Adicionar event listeners aos itens do menu
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', function() {
+            // Remover classe active de todos
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            // Adicionar ao item clicado
+            this.classList.add('active');
+            
+            // Fechar sidebar no mobile
+            if (window.innerWidth <= 768) {
+                document.querySelector('.sidebar').classList.remove('active');
             }
-        }, 300);
-    }, duration);
+            
+            // Mostrar página correspondente
+            const page = this.getAttribute('data-page');
+            showPage(page);
+        });
+    });
     
-    return notification;
-}
-
-// ==============================
-// LOGOUT
-// ==============================
-function logout() {
-    if (confirm('Tem certeza que deseja sair?')) {
-        // Limpar dados locais
-        localStorage.removeItem('assistance_user');
-        localStorage.removeItem('auth_token');
+    // Adicionar item de configurações ao menu se não existir
+    const navList = document.querySelector('.nav-list');
+    const settingsItem = navList.querySelector('[data-page="settings"]');
+    
+    if (!settingsItem) {
+        const settingsNav = document.createElement('li');
+        settingsNav.className = 'nav-item';
+        settingsNav.setAttribute('data-page', 'settings');
+        settingsNav.innerHTML = `
+            <i class="fas fa-cog"></i>
+            <span>Configurações</span>
+        `;
+        navList.appendChild(settingsNav);
         
-        // Resetar estado
-        currentUser = null;
-        currentCourse = null;
-        
-        // Voltar para login
-        document.getElementById('app').style.display = 'none';
-        document.getElementById('loginPage').style.display = 'flex';
-        
-        // Limpar formulários
-        document.getElementById('username').value = '';
-        document.getElementById('adminUser').value = '';
-        document.getElementById('adminPass').value = '';
-        
-        showNotification('Logout realizado com sucesso', 'info');
+        settingsNav.addEventListener('click', () => {
+            loadSettings();
+        });
     }
 }
 
 // ==============================
-// INICIALIZAÇÃO DO SISTEMA
+// MODIFICAÇÃO NA FUNÇÃO SHOWPAGE
+// ==============================
+function showPage(page) {
+    // Ocultar todas as páginas
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    
+    // Mostrar página selecionada
+    const pageElement = document.getElementById(page + 'Page');
+    if (pageElement) {
+        pageElement.classList.add('active');
+    }
+    
+    // Carregar conteúdo específico da página
+    switch(page) {
+        case 'dashboard':
+            loadDashboard();
+            break;
+        case 'ia':
+            loadChat();
+            break;
+        case 'feedback':
+            loadFeedbacks();
+            break;
+        case 'courses':
+            if (currentUser?.role === 'admin') {
+                loadCoursesManagement();
+            } else {
+                showPage('dashboard');
+            }
+            break;
+        case 'settings':
+            loadSettings();
+            break;
+        case 'about':
+            loadAbout();
+            break;
+    }
+}
+
+// ==============================
+// INICIALIZAÇÃO COM VERIFICAÇÃO DE API
 // ==============================
 document.addEventListener('DOMContentLoaded', async () => {
+    // Carregar dados do localStorage
+    loadLocalData();
+    
+    // Inicializar banco de dados local
     await initDatabase();
     
     // Verificar se há usuário logado
     if (currentUser) {
         await showMainSystem();
+        
+        // Verificar se API está configurada
+        const hasApiKey = !!localStorage.getItem('openrouter_api_key');
+        if (!hasApiKey && currentUser.role === 'admin') {
+            // Mostrar aviso para admin configurar API
+            setTimeout(() => {
+                showNotification('Configure a API OpenRouter para usar IA avançada!', 'info', 5000);
+            }, 2000);
+        }
     }
     
     // Configurar eventos globais
     setupGlobalEvents();
 });
 
-function setupGlobalEvents() {
-    // Fechar modais ao clicar fora
-    document.addEventListener('click', (e) => {
-        if (e.target.classList.contains('modal-overlay')) {
-            e.target.remove();
-        }
-    });
-    
-    // Fechar com ESC
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            document.querySelector('.modal-overlay')?.remove();
-        }
-    });
-}
-
 // ==============================
-// EXPORTAR FUNÇÕES PARA HTML
+// EXPORTAR FUNÇÕES ADICIONAIS
 // ==============================
-window.showTab = showTab;
-window.loginAsUser = loginAsUser;
-window.loginAsAdmin = loginAsAdmin;
-window.logout = logout;
-window.sendMessage = sendMessage;
-window.setPrompt = setPrompt;
-window.copyToClipboard = copyToClipboard;
-window.copyForWhatsApp = copyForWhatsApp;
-window.setRating = setRating;
-window.submitFeedback = submitFeedback;
-window.closeModal = closeModal;
-window.saveCourse = saveCourse;
-window.deleteCourse = deleteCourse;
-window.editCourse = editCourse;
+window.configureOpenRouter = configureOpenRouter;
+window.saveApiConfig = saveApiConfig;
+window.loadSettings = loadSettings;
+window.clearLocalData = clearLocalData;
+window.exportData = exportData;
