@@ -41,12 +41,20 @@
                     <input type="text" id="username" class="form-control" 
                            placeholder="Digite seu nome ou apelido" value="Visitante">
                 </div>
+                <div class="form-group" style="margin-top: 16px;">
+                    <label><i class="fas fa-key"></i> Senha de Acesso</label>
+                    <input type="password" id="userPass" class="form-control" 
+                           placeholder="Digite a senha de acesso" value="user123">
+                </div>
                 <button class="btn btn-primary" onclick="loginAsUser()" style="width: 100%; margin-top: 20px;">
                     <i class="fas fa-rocket"></i> Entrar no Sistema
                 </button>
                 <div style="margin-top: 24px; text-align: center;">
                     <p style="color: var(--secondary); font-size: 14px; line-height: 1.6;">
                         <i class="fas fa-bolt"></i> Acesso instantâneo para testar todas as funcionalidades
+                    </p>
+                    <p style="color: var(--secondary); font-size: 12px; margin-top: 8px;">
+                        <i class="fas fa-info-circle"></i> Senha padrão: user123
                     </p>
                 </div>
             </div>
@@ -59,7 +67,7 @@
                            placeholder="admin" value="admin">
                 </div>
                 <div class="form-group" style="margin-top: 16px;">
-                    <label><i class="fas fa-key"></i> Senha</label>
+                    <label><i class="fas fa-key"></i> Senha Admin</label>
                     <input type="password" id="adminPass" class="form-control" 
                            placeholder="Digite a senha" value="admin123">
                 </div>
@@ -69,6 +77,9 @@
                 <div style="margin-top: 24px; text-align: center;">
                     <p style="color: var(--secondary); font-size: 14px; line-height: 1.6;">
                         <i class="fas fa-shield-alt"></i> Acesso completo ao sistema administrativo
+                    </p>
+                    <p style="color: var(--secondary); font-size: 12px; margin-top: 8px;">
+                        <i class="fas fa-info-circle"></i> Credenciais padrão: admin / admin123
                     </p>
                 </div>
             </div>
