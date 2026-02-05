@@ -29,49 +29,6 @@ const CONFIG = {
 // ==============================
 // FUNÇÕES DE LOGIN
 // ==============================
-function showTab(tabId, element) {
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
-    
-    element.classList.add('active');
-    document.getElementById(tabId + 'Tab').style.display = 'block';
-}
-
-async function loginAsUser() {
-    const username = document.getElementById('username').value.trim() || 'Visitante';
-    
-    try {
-        // Tentar login via API
-        const response = await fetch(`${CONFIG.API_BASE_URL}/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                username: username.toLowerCase(),
-                password: 'user_access', // Senha padrão para usuários
-                isAdmin: false
-            })
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            if (data.success) {
-                startUserApp(data.user);
-                return;
-            }
-        }
-    } catch (error) {
-        console.log('API offline, usando modo usuário local');
-    }
-    
-    // Fallback: modo local se API falhar
-    startUserApp({
-        id: 'local_' + Date.now(),
-        name: username,
-        role: 'user',
-        avatar: username.charAt(0).toUpperCase()
-    });
-}
-
 async function loginAsAdmin() {
     const username = document.getElementById('adminUser').value.trim();
     const password = document.getElementById('adminPass').value.trim();
@@ -86,30 +43,29 @@ async function loginAsAdmin() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                username: username.toLowerCase(),
+                username: username, // NÃO converter para lowercase
                 password: password,
                 isAdmin: true
             })
         });
         
-        if (!response.ok) {
-            throw new Error('Credenciais inválidas');
-        }
-        
         const data = await response.json();
         
-        if (data.success) {
-            CONFIG.JWT_TOKEN = data.token;
-            localStorage.setItem('jwt_token', data.token);
-            startAdminApp(data.user);
-        } else {
+        if (!response.ok || !data.success) {
             showNotification(data.message || 'Credenciais inválidas', 'error');
+            return;
         }
+        
+        CONFIG.JWT_TOKEN = data.token;
+        localStorage.setItem('jwt_token', data.token);
+        startAdminApp(data.user);
+        
     } catch (error) {
         console.error('Erro no login admin:', error);
         showNotification('Erro ao conectar com a API', 'error');
     }
 }
+
 
 // ==============================
 // INICIALIZAÇÃO DOS APPS
