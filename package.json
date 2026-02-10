@@ -1,29 +1,21 @@
 {
-  "name": "assistance-sm-api-neon",
+  "name": "assistance-sm-api",
   "version": "1.0.0",
-  "description": "API para sistema de assistência com IA usando Neon PostgreSQL",
+  "description": "API para sistema Assistance SM com Neon PostgreSQL no Vercel",
   "main": "api/index.js",
   "scripts": {
     "start": "node api/index.js",
     "dev": "nodemon api/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "setup-db": "node setup-database.js"
+    "vercel-build": "echo 'Building for Vercel...'"
   },
   "dependencies": {
     "express": "^4.18.2",
     "cors": "^2.8.5",
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.2",
-    "pg": "^8.11.3",
-    "dotenv": "^16.3.1"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.1"
+    "pg": "^8.11.3"
   },
   "engines": {
     "node": ">=18.0.0"
-  },
-  "keywords": ["neon", "postgresql", "api", "assistance", "ai"],
-  "author": "Assistance SM",
-  "license": "MIT"
+  }
 }
